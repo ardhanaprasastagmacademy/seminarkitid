@@ -1,0 +1,84 @@
+---
+// Footer.astro sesuai DESIGN.md Bagian 6.15 & PRD.md
+---
+
+<footer class="footer-sk">
+  <div class="container">
+    <div class="row g-4 g-lg-5">
+      <!-- Kolom 1: Profil Brand -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <span class="brand-logo text-white mb-3 d-inline-block" style="font-size: 1.875rem;">
+          seminarkit
+        </span>
+        <p class="text-small text-white-50 prose-text mb-4">
+          Penyedia souvenir kantor, paket seminar kit, dan merchandise korporat custom logo berkualitas tinggi. Melayani pengadaan instansi pemerintah, BUMN, swasta, dan universitas ke seluruh Indonesia.
+        </p>
+        <div class="text-small text-white-50">
+          <span class="d-block fw-bold text-white mb-1">Komitmen Kami:</span>
+          Hasil presisi, material teruji, dan ketepatan waktu pengiriman sebelum acara Anda dimulai.
+        </div>
+      </div>
+
+      <!-- Kolom 2: Tautan Cepat -->
+      <div class="col-6 col-md-3 col-lg-2">
+        <span class="eyebrow eyebrow-light mb-3">Navigasi</span>
+        <nav class="d-flex flex-column" aria-label="Tautan Cepat">
+          <a href="/">Beranda</a>
+          <a href="/tentang">Tentang Kami</a>
+          <a href="/produk">Katalog Produk</a>
+          <a href="/galeri">Galeri Produksi</a>
+          <a href="/blog">Artikel & Panduan</a>
+          <a href="/kontak">Hubungi Kami</a>
+        </nav>
+      </div>
+
+      <!-- Kolom 3: Kontak & Jam Operasional -->
+      <div class="col-6 col-md-3 col-lg-3">
+        <span class="eyebrow eyebrow-light mb-3">Kontak & Alamat</span>
+        <address class="text-small mb-3 not-italic" style="font-style: normal; line-height: 1.6;">
+          <strong class="text-white d-block">Workshop & Kantor:</strong>
+          Jl. Bendungan Sigura-gura No. 12, Sumbersari, Kec. Lowokwaru, Kota Malang, Jawa Timur 65145
+        </address>
+        <div class="text-small mb-2">
+          <strong class="text-white d-block">WhatsApp:</strong>
+          <a href="https://wa.me/6282232730246" target="_blank" rel="noopener noreferrer">0822-3273-0246</a>
+        </div>
+        <div class="text-small mb-2">
+          <strong class="text-white d-block">Email:</strong>
+          <a href="mailto:halo@seminarkit.id">halo@seminarkit.id</a>
+        </div>
+        <div class="text-small text-white-50 mt-3">
+          <strong class="text-white d-block">Jam Kerja:</strong>
+          Senin – Sabtu: 08.00 – 17.00 WIB
+        </div>
+      </div>
+
+      <!-- Kolom 4: Media Sosial (Hanya Teks Sesuai DESIGN.md) -->
+      <div class="col-12 col-md-6 col-lg-3">
+        <span class="eyebrow eyebrow-light mb-3">Media Sosial</span>
+        <p class="text-small text-white-50 mb-3">
+          Ikuti galeri dokumentasi produksi harian dan studi kasus proyek souvenir kami:
+        </p>
+        <div class="d-flex flex-column gap-2 text-small">
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram: @seminarkit.id</a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn: seminarkit Indonesia</a>
+          <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">TikTok: @seminarkit_official</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Baris Hak Cipta -->
+    <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+      <div>
+        &copy; {new Date().getFullYear()} seminarkit. Hak cipta dilindungi undang-undang.
+      </div>
+      <div class="d-flex gap-3 text-small">
+        <a href="/produk" class="text-white-50">Katalog Souvenir</a>
+        <span class="text-white-50">/</span>
+        <a href="/kontak" class="text-white-50">Konsultasi Pemesanan</a>
+        <span class="text-white-50">/</span>
+        <a href="/admin/login" class="text-white-50">Admin</a>
+      </div>
+    </div>
+  </div>
+</footer>

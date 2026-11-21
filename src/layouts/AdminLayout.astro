@@ -1,0 +1,163 @@
+---
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/main.css';
+
+interface Props {
+  title?: string;
+  activeNav?: 'dashboard' | 'produk' | 'galeri' | 'blog' | 'pesan' | 'testimoni' | 'faq';
+}
+
+const { title = "Dashboard Admin", activeNav = "dashboard" } = Astro.props;
+
+const navItems = [
+  { key: 'dashboard', href: '/admin', label: 'Dashboard' },
+  { key: 'produk', href: '/admin/produk', label: 'Kelola Produk' },
+  { key: 'galeri', href: '/admin/galeri', label: 'Kelola Galeri' },
+  { key: 'blog', href: '/admin/blog', label: 'Kelola Blog' },
+  { key: 'pesan', href: '/admin/pesan', label: 'Pesan Masuk' },
+  { key: 'testimoni', href: '/admin/testimoni', label: 'Kelola Testimoni' },
+  { key: 'faq', href: '/admin/faq', label: 'Kelola FAQ' }
+];
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} | Admin seminarkit</title>
+    <!-- Noindex & Nofollow pada semua halaman admin -->
+    <meta name="robots" content="noindex, nofollow" />
+    <!-- Preconnect Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body class="admin-body">
+    <div class="admin-wrapper">
+      <!-- Sidebar Admin Sesuai DESIGN.md (Lebar 240px, latar --slate, aktif bold 700) -->
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+          <a href="/admin" class="brand-logo">
+            seminarkit
+          </a>
+          <span class="d-block text-white-50 text-small mt-1">Panel Pengelola</span>
+        </div>
+
+        <ul class="admin-nav">
+          {navItems.map((item) => (
+            <li class="admin-nav-item">
+              <a
+                href={item.href}
+                class={`admin-nav-link ${activeNav === item.key ? 'active' : ''}`}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div class="p-3 border-top border-secondary border-opacity-25 mt-auto">
+          <a href="/" target="_blank" class="text-white-50 text-small text-decoration-none d-block mb-2">
+            Buka Website Publik
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Area -->
+      <div class="admin-main">
+        <!-- Topbar Admin -->
+        <header class="admin-topbar">
+          <h1 class="admin-topbar-title">{title}</h1>
+          <div class="d-flex align-items-center gap-3">
+            <span class="text-small text-slate-soft">Admin: administrator@seminarkit.id</span>
+            <button type="button" class="btn-action btn-action-delete" id="adminLogoutBtn">
+              Keluar
+            </button>
+          </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="admin-content">
+          <slot />
+        </main>
+      </div>
+    </div>
+
+    <!-- Script Global Admin: Bootstrap & Modal Controller Terpadu -->
+    <script>
+      import * as bootstrap from 'bootstrap';
+      // @ts-ignore
+      window.bootstrap = bootstrap;
+
+      // Pemeriksaan Autentikasi Admin di Sisi Klien
+      const isLoggedIn = localStorage.getItem('seminarkit_admin_token') || sessionStorage.getItem('seminarkit_admin_token');
+      if (!isLoggedIn && !window.location.pathname.includes('/admin/login')) {
+        window.location.href = '/admin/login';
+      }
+
+      // Tombol Logout
+      const logoutBtn = document.getElementById('adminLogoutBtn');
+      logoutBtn?.addEventListener('click', () => {
+        if (confirm('Apakah Anda yakin ingin keluar dari panel admin?')) {
+          localStorage.removeItem('seminarkit_admin_token');
+          sessionStorage.removeItem('seminarkit_admin_token');
+          window.location.href = '/admin/login';
+        }
+      });
+
+      // Global Helper Modal yang Handal & Tahan Eror
+      // @ts-ignore
+      window.skOpenModal = function(modalId: string) {
+        const el = document.getElementById(modalId);
+        if (!el) return;
+        try {
+          // @ts-ignore
+          const modalInstance = bootstrap.Modal.getOrCreateInstance(el);
+          modalInstance.show();
+        } catch (e) {
+          el.classList.add('show');
+          el.style.display = 'block';
+          document.body.classList.add('modal-open');
+          let backdrop = document.getElementById('sk-global-backdrop');
+          if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'sk-global-backdrop';
+            backdrop.className = 'modal-backdrop fade show';
+            document.body.appendChild(backdrop);
+          }
+        }
+      };
+
+      // @ts-ignore
+      window.skCloseModal = function(modalId: string) {
+        const el = document.getElementById(modalId);
+        if (!el) return;
+        try {
+          // @ts-ignore
+          const modalInstance = bootstrap.Modal.getInstance(el);
+          if (modalInstance) modalInstance.hide();
+        } catch (e) {}
+        el.classList.remove('show');
+        el.style.display = 'none';
+        document.body.classList.remove('modal-open');
+        const backdrop = document.getElementById('sk-global-backdrop');
+        if (backdrop) backdrop.remove();
+        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+      };
+
+      // Listener penutupan modal universal
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const dismissBtn = target.closest('[data-bs-dismiss="modal"]');
+        if (dismissBtn) {
+          const modal = dismissBtn.closest('.modal');
+          if (modal) {
+            // @ts-ignore
+            window.skCloseModal(modal.id);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,227 @@
+/* Admin Styles Sesuai DESIGN.md */
+
+.admin-body {
+  background-color: var(--khaki-tint);
+  min-height: 100vh;
+}
+
+.admin-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  width: 240px;
+  background-color: var(--slate);
+  color: var(--white);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--slate-soft);
+}
+
+.admin-sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--slate-soft);
+}
+
+.admin-sidebar-header .brand-logo {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--white);
+  text-decoration: none;
+}
+
+.admin-nav {
+  list-style: none;
+  padding: 1rem 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.admin-nav-item {
+  margin-bottom: 2px;
+}
+
+.admin-nav-link {
+  display: block;
+  padding: 0.75rem 1.5rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--t-fast) var(--ease), font-weight var(--t-fast) var(--ease);
+}
+
+.admin-nav-link:hover {
+  background-color: var(--slate-deep);
+  color: var(--white);
+}
+
+.admin-nav-link.active {
+  background-color: var(--slate-deep);
+  color: var(--white);
+  font-weight: 700;
+}
+
+.admin-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-topbar {
+  height: 64px;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.admin-topbar-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--slate-deep);
+  margin: 0;
+}
+
+.admin-content {
+  padding: 2rem;
+  flex-grow: 1;
+}
+
+.admin-card {
+  background-color: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-stat-card {
+  background-color: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.admin-stat-number {
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--slate-deep);
+  margin-bottom: 0.25rem;
+}
+
+.admin-stat-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate-soft);
+}
+
+/* Tabel Admin */
+.table-sk {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--white);
+  border: 1px solid var(--line);
+  font-size: 0.875rem;
+}
+
+.table-sk th {
+  background-color: var(--slate);
+  color: var(--white);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--slate-soft);
+}
+
+.table-sk td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--slate-deep);
+  vertical-align: middle;
+}
+
+.table-sk tbody tr:hover {
+  background-color: var(--khaki-tint);
+}
+
+/* Badges */
+.badge-status {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  background-color: var(--khaki-tint);
+  border: 1px solid var(--line);
+  color: var(--slate-deep);
+}
+
+.badge-status.active,
+.badge-status.published {
+  border-color: var(--khaki-deep);
+  color: var(--khaki-deep);
+}
+
+.badge-status.baru {
+  background-color: var(--khaki);
+  border-color: var(--slate-deep);
+  color: var(--slate-deep);
+}
+
+/* Tombol Aksi Tabel */
+.btn-action {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.btn-action-edit {
+  color: var(--khaki-deep);
+  margin-right: 0.75rem;
+}
+
+.btn-action-delete {
+  color: #8C2F2F;
+}
+
+/* Upload Box */
+.upload-dropzone {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--paper);
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease);
+}
+
+.upload-dropzone:hover {
+  border-color: var(--slate);
+}
+
+.login-card {
+  max-width: 420px;
+  width: 100%;
+  background-color: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+}

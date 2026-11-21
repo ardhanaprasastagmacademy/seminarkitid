@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageBanner from '../components/PageBanner.astro';
+import GalleryGrid from '../components/GalleryGrid.astro';
+import Cta from '../components/Cta.astro';
+import { getGallery } from '../lib/db.js';
+
+// Mengambil seluruh galeri dari database
+const galleryItems = await getGallery();
+---
+
+<BaseLayout
+  title="Galeri Dokumentasi Produksi Souvenir Kantor & Seminar Kit | seminarkit"
+  description="Lihat dokumentasi hasil produksi nyata souvenir kantor, seminar kit, tumbler laser grafir, agenda kulit, dan goodie bag pesanan perusahaan di seminarkit."
+>
+  <!-- Page Banner & Breadcrumb: Beranda > Galeri -->
+  <PageBanner
+    eyebrow="Portofolio Produksi"
+    title="Galeri Hasil Produksi"
+    description="Dokumentasi autentik hasil pengerjaan pesanan instansi pemerintah, BUMN, dan perusahaan swasta di bengkel kerja seminarkit."
+    breadcrumbs={[
+      { label: "Beranda", href: "/" },
+      { label: "Galeri" }
+    ]}
+  />
+
+  <!-- Galeri Grid dengan Fitur Lightbox Interaktif -->
+  <section class="section-py bg-paper">
+    <div class="container">
+      <div class="mb-4">
+        <p class="text-slate-soft prose-text">
+          Klik pada setiap foto untuk memperbesar tampilan dan melihat detail presisi pengerjaan sablon, grafir laser, serta kerapian jahitan produk.
+        </p>
+      </div>
+
+      <GalleryGrid items={galleryItems} />
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <Cta
+    title="Ingin Melihat Contoh Fisik Sampel Souvenir Kami?"
+    description="Kami dapat mengirimkan sampel produk ke kantor Anda sebelum pemesanan massal disetujui. Hubungi tim kami untuk jadwal pengiriman sampel."
+  />
+</BaseLayout>

@@ -1,0 +1,98 @@
+---
+interface Props {
+  type?: 'Organization' | 'Product' | 'Article' | 'BreadcrumbList';
+  data?: Record<string, any>;
+}
+
+const { type = 'Organization', data = {} } = Astro.props;
+
+const baseUrl = "https://seminarkit.id";
+
+let schema: Record<string, any> = {};
+
+if (type === 'Organization') {
+  schema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "seminarkit",
+    "image": `${baseUrl}/images/logo-og.png`,
+    "description": "Pusat souvenir kantor, seminar kit, dan merchandise korporat custom logo berkualitas tinggi di Indonesia.",
+    "url": baseUrl,
+    "telephone": "+6282232730246",
+    "priceRange": "Rp 15.000 - Rp 250.000",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Jl. Bendungan Sigura-gura No. 12",
+      "addressLocality": "Malang",
+      "addressRegion": "Jawa Timur",
+      "postalCode": "65145",
+      "addressCountry": "ID"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": -7.9546,
+      "longitude": 112.6142
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      "opens": "08:00",
+      "closes": "17:00"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+6282232730246",
+      "contactType": "customer service",
+      "areaServed": "ID",
+      "availableLanguage": "id"
+    }
+  };
+} else if (type === 'Product' && data) {
+  schema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": data.name,
+    "image": data.image ? [data.image] : [],
+    "description": data.description,
+    "brand": {
+      "@type": "Brand",
+      "name": "seminarkit"
+    },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "IDR",
+      "price": String(data.price || 0),
+      "availability": "https://schema.org/InStock",
+      "url": `${baseUrl}/produk/${data.slug}`
+    }
+  };
+} else if (type === 'Article' && data) {
+  schema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": data.title,
+    "image": data.cover_image ? [data.cover_image] : [],
+    "datePublished": data.published_at,
+    "dateModified": data.published_at,
+    "author": {
+      "@type": "Organization",
+      "name": data.author || "seminarkit"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "seminarkit",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${baseUrl}/favicon.svg`
+      }
+    },
+    "description": data.excerpt,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `${baseUrl}/blog/${data.slug}`
+    }
+  };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

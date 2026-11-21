@@ -1,0 +1,219 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getTestimonials } from '../../lib/db.js';
+
+const testimonials = await getTestimonials({ activeOnly: false });
+---
+
+<AdminLayout title="Kelola Testimoni Klien" activeNav="testimoni">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h4 mb-1">Daftar Testimoni Pelanggan</h2>
+      <span class="text-small text-slate-soft">Ulasan dari pimpinan instansi dan panitia seminar yang tampil di beranda.</span>
+    </div>
+    <button
+      type="button"
+      class="btn-sk"
+      id="btnOpenAddTesti"
+    >
+      Tambah Testimoni Baru
+    </button>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-responsive">
+      <table class="table-sk">
+        <thead>
+          <tr>
+            <th style="width: 25%;">Nama & Instansi</th>
+            <th style="width: 45%;">Isi Kutipan</th>
+            <th style="width: 15%;">Status</th>
+            <th style="width: 15%;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {testimonials.map((t) => (
+            <tr>
+              <td>
+                <div class="fw-bold">{t.name}</div>
+                <div class="text-small text-slate-soft">{t.position}, {t.company}</div>
+              </td>
+              <td>
+                <div class="text-small prose-text">"{t.content}"</div>
+              </td>
+              <td>
+                <span class={`badge-status ${t.is_active ? 'active' : ''}`}>
+                  {t.is_active ? 'Aktif' : 'Nonaktif'}
+                </span>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn-action btn-action-edit btn-edit-testi"
+                  data-testimonial={JSON.stringify(t)}
+                >
+                  Ubah
+                </button>
+                <button
+                  type="button"
+                  class="btn-action btn-action-delete btn-delete-testi"
+                  data-id={t.id}
+                  data-name={t.name}
+                >
+                  Hapus
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Form Testimoni -->
+  <div class="modal fade" id="modalTestimonialForm" tabindex="-1" aria-labelledby="modalTestiLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-line" style="border-radius: var(--radius);">
+        <div class="modal-header bg-slate text-white">
+          <h3 class="modal-title h5" id="modalTestiLabel">Formulir Testimoni</h3>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <form id="testiForm">
+          <div class="modal-body p-4">
+            <input type="hidden" id="testiId" />
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label for="testiName" class="form-label-sk">Nama Lengkap & Gelar *</label>
+                <input type="text" id="testiName" class="form-control-sk" required placeholder="Contoh: Ratna Dewi, S.E." />
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="testiPosition" class="form-label-sk">Jabatan / Posisi *</label>
+                <input type="text" id="testiPosition" class="form-control-sk" required placeholder="Contoh: HR & General Affair Specialist" />
+              </div>
+              <div class="col-12 col-md-8">
+                <label for="testiCompany" class="form-label-sk">Instansi / Perusahaan *</label>
+                <input type="text" id="testiCompany" class="form-control-sk" required placeholder="Contoh: PT Telkom Akses Regional V" />
+              </div>
+              <div class="col-12 col-md-4">
+                <label for="testiActive" class="form-label-sk">Status Tampil</label>
+                <select id="testiActive" class="form-control-sk">
+                  <option value="true">Aktif (Tampil Publik)</option>
+                  <option value="false">Nonaktif</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="testiContent" class="form-label-sk">Isi Kutipan Ulasan *</label>
+                <textarea id="testiContent" class="form-control-sk" rows="4" required placeholder="Tuliskan ulasan kepuasan pelanggan..."></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer p-3 bg-khaki-tint border-line-top">
+            <button type="button" class="btn-sk-outline" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn-sk" id="btnSaveTesti">Simpan Testimoni</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('testiForm') as HTMLFormElement;
+      const btnAdd = document.getElementById('btnOpenAddTesti');
+      const testiId = document.getElementById('testiId') as HTMLInputElement;
+      const testiName = document.getElementById('testiName') as HTMLInputElement;
+      const testiPosition = document.getElementById('testiPosition') as HTMLInputElement;
+      const testiCompany = document.getElementById('testiCompany') as HTMLInputElement;
+      const testiActive = document.getElementById('testiActive') as HTMLSelectElement;
+      const testiContent = document.getElementById('testiContent') as HTMLTextAreaElement;
+      const btnSave = document.getElementById('btnSaveTesti') as HTMLButtonElement;
+
+      btnAdd?.addEventListener('click', () => {
+        form?.reset();
+        testiId.value = '';
+        (document.getElementById('modalTestiLabel') as HTMLElement).textContent = 'Tambah Testimoni Baru';
+        // @ts-ignore
+        window.skOpenModal('modalTestimonialForm');
+      });
+
+      document.querySelectorAll('.btn-edit-testi').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const t = JSON.parse(btn.getAttribute('data-testimonial') || '{}');
+          testiId.value = t.id || '';
+          testiName.value = t.name || '';
+          testiPosition.value = t.position || '';
+          testiCompany.value = t.company || '';
+          testiActive.value = String(Boolean(t.is_active));
+          testiContent.value = t.content || '';
+
+          (document.getElementById('modalTestiLabel') as HTMLElement).textContent = 'Ubah Testimoni: ' + t.name;
+          // @ts-ignore
+          window.skOpenModal('modalTestimonialForm');
+        });
+      });
+
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        btnSave.disabled = true;
+        btnSave.textContent = 'Menyimpan...';
+
+        const payload = {
+          id: testiId.value || undefined,
+          name: testiName.value,
+          position: testiPosition.value,
+          company: testiCompany.value,
+          content: testiContent.value,
+          is_active: testiActive.value === 'true',
+          sort_order: 1
+        };
+
+        try {
+          const res = await fetch('/api/admin/testimonial', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await res.json();
+
+          if (result.success) {
+            // @ts-ignore
+            window.skCloseModal('modalTestimonialForm');
+            window.location.reload();
+          } else {
+            alert('Gagal menyimpan testimoni: ' + (result.error || 'Terjadi kesalahan'));
+            btnSave.disabled = false;
+            btnSave.textContent = 'Simpan Testimoni';
+          }
+        } catch (err) {
+          alert('Terjadi kesalahan jaringan.');
+          btnSave.disabled = false;
+          btnSave.textContent = 'Simpan Testimoni';
+        }
+      });
+
+      document.querySelectorAll('.btn-delete-testi').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-id');
+          const name = btn.getAttribute('data-name');
+          if (confirm(`Hapus ulasan dari "${name}"?`)) {
+            try {
+              const res = await fetch('/api/admin/testimonial', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+              });
+              const result = await res.json();
+              if (result.success) {
+                window.location.reload();
+              } else {
+                alert('Gagal menghapus testimoni.');
+              }
+            } catch (err) {
+              alert('Terjadi kesalahan jaringan.');
+            }
+          }
+        });
+      });
+    });
+  </script>
+</AdminLayout>

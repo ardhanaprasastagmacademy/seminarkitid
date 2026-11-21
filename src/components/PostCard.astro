@@ -1,0 +1,56 @@
+---
+interface Props {
+  post: {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    cover_image?: string;
+    published_at?: string;
+  };
+}
+
+const { post } = Astro.props;
+
+const dateFormatted = post.published_at
+  ? new Date(post.published_at).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    })
+  : "Terbaru";
+---
+
+<article class="card-blog">
+  {post.cover_image && (
+    <div class="card-blog-img-box">
+      <img
+        src={post.cover_image}
+        alt={post.title}
+        loading="lazy"
+        width="600"
+        height="375"
+      />
+    </div>
+  )}
+
+  <div class="card-blog-body">
+    <span class="eyebrow">{dateFormatted}</span>
+    
+    <h3 class="card-blog-title">
+      <a href={`/blog/${post.slug}`} class="text-reset text-decoration-none">
+        {post.title}
+      </a>
+    </h3>
+
+    <p class="card-blog-excerpt">
+      {post.excerpt}
+    </p>
+
+    <div class="mt-auto pt-2">
+      <a href={`/blog/${post.slug}`} class="link-sk">
+        Baca Artikel
+      </a>
+    </div>
+  </div>
+</article>

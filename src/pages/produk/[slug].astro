@@ -1,0 +1,187 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageBanner from '../../components/PageBanner.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import Cta from '../../components/Cta.astro';
+import { getProductBySlug, getProducts } from '../../lib/db.js';
+import { getProductWhatsAppUrl } from '../../lib/whatsapp.js';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/produk');
+}
+
+const product = await getProductBySlug(slug);
+
+if (!product) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Produk Tidak Ditemukan'
+  });
+}
+
+// Ambil produk terkait untuk rekomendasi
+const allProducts = await getProducts({ activeOnly: true });
+const relatedProducts = allProducts.filter((p) => p.slug !== product.slug).slice(0, 3);
+
+const formattedPrice = `Rp ${Number(product.price).toLocaleString("id-ID")}`;
+const waUrl = getProductWhatsAppUrl(product.name, product.price);
+
+const metaTitle = `${product.name} Custom Logo, Harga Mulai ${formattedPrice} | seminarkit`;
+const metaDescription = `${product.name} custom logo untuk souvenir kantor dan seminar. ${product.short_description} Dapatkan penawaran harga dan konsultasi via WhatsApp.`;
+
+const specifications = product.specifications || {
+  "Material": "Bahan standar korporat teruji",
+  "Metode Cetak": "Grafir Laser / Sablon Presisi / UV Print",
+  "Minimal Order": "Mulai dari 30 - 50 pcs",
+  "Waktu Produksi": "5 hingga 10 hari kerja"
+};
+---
+
+<BaseLayout
+  title={metaTitle}
+  description={metaDescription}
+  ogImage={product.main_image}
+  productName={product.name}
+  jsonLdType="Product"
+  jsonLdData={{
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    slug: product.slug,
+    image: product.main_image
+  }}
+>
+  <!-- Page Banner & Breadcrumb: Beranda > Produk > [Nama Produk] -->
+  <PageBanner
+    eyebrow="Detail Souvenir Kantor"
+    title={product.name}
+    description={product.short_description}
+    breadcrumbs={[
+      { label: "Beranda", href: "/" },
+      { label: "Produk", href: "/produk" },
+      { label: product.name }
+    ]}
+  />
+
+  <!-- Detail Konten Produk -->
+  <section class="section-py bg-paper">
+    <div class="container">
+      <div class="row g-5">
+        <!-- Kolom Galeri Foto Produk -->
+        <div class="col-12 col-lg-6">
+          <div class="p-2 border-line bg-white mb-3">
+            <img
+              src={product.main_image}
+              alt={`${product.name} souvenir kantor custom logo`}
+              class="w-100"
+              style="aspect-ratio: 4/5; object-fit: cover;"
+              id="mainProductImg"
+              width="600"
+              height="750"
+            />
+          </div>
+
+          <!-- Thumbnail Gallery jika ada foto pendukung -->
+          {product.images && product.images.length > 1 && (
+            <div class="d-flex gap-2">
+              {product.images.map((imgUrl, i) => (
+                <div
+                  class="border-line bg-white p-1"
+                  style="width: 80px; height: 80px; cursor: pointer;"
+                  onclick={`document.getElementById('mainProductImg').src = '${imgUrl}'`}
+                >
+                  <img
+                    src={imgUrl}
+                    alt={`${product.name} detail sudut ${i + 1}`}
+                    style="width: 100%; height: 100%; object-fit: cover;"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <!-- Kolom Informasi, Harga, Spesifikasi, & Tombol Pemesanan -->
+        <div class="col-12 col-lg-6">
+          <span class="eyebrow">Informasi Spesifikasi</span>
+          <h2 class="mb-2" style="font-size: 2.25rem;">{product.name}</h2>
+          
+          <div class="text-price mb-4" style="font-size: 2rem; color: var(--slate-deep);">
+            {formattedPrice}
+            <span class="text-small text-slate-soft fw-normal"> / satuan (estimasi pesanan standar)</span>
+          </div>
+
+          <div class="prose-text mb-4">
+            <p>{product.description}</p>
+          </div>
+
+          <!-- Tabel Spesifikasi Teknis -->
+          <div class="mb-4">
+            <h3 style="font-size: 1.125rem;" class="mb-3">Spesifikasi Teknis</h3>
+            <table class="table-sk">
+              <tbody>
+                {Object.entries(specifications).map(([key, value]) => (
+                  <tr>
+                    <th style="width: 35%; background-color: var(--khaki-tint); color: var(--slate-deep); border-color: var(--line);">
+                      {key}
+                    </th>
+                    <td>{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tombol CTA Pesan via WhatsApp -->
+          <div class="p-4 bg-khaki-tint border-line mb-4">
+            <div class="fw-bold mb-2">Ingin mengajukan penawaran atau custom logo?</div>
+            <p class="text-small text-slate-soft mb-3">
+              Konsultasikan jumlah pesanan, tenggat waktu acara, dan kirimkan file logo instansi Anda ke tim kami.
+            </p>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-sk w-100 text-center"
+            >
+              Pesan via WhatsApp
+            </a>
+          </div>
+
+          <div class="text-small text-slate-soft">
+            * Harga dapat berubah menyesuaikan jumlah kuantiti pesanan, pilihan teknik cetak logo, dan kemasan khusus.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rekomendasi Produk Terkait -->
+  {relatedProducts.length > 0 && (
+    <section class="section-py bg-khaki-tint border-line-top">
+      <div class="container">
+        <div class="mb-4">
+          <span class="eyebrow">Rekomendasi Terkait</span>
+          <h2>Produk Souvenir Lainnya</h2>
+        </div>
+
+        <div class="row g-4">
+          {relatedProducts.map((relProduct) => (
+            <div class="col-12 col-md-6 col-lg-4">
+              <ProductCard product={relProduct} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- CTA -->
+  <Cta
+    title="Butuh Penawaran Resmi (Invoice / Proforma) untuk Pengadaan Kantor?"
+    description="Kirimkan rincian kebutuhan dan jumlah peserta acara Anda. Kami siap menerbitkan surat penawaran harga resmi lengkap dengan nomor NPWP dan rekening perusahaan."
+  />
+</BaseLayout>

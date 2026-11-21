@@ -1,0 +1,47 @@
+---
+interface Testimonial {
+  id: string;
+  name: string;
+  position: string;
+  company: string;
+  content: string;
+}
+
+interface Props {
+  testimonials: Testimonial[];
+}
+
+const { testimonials } = Astro.props;
+---
+
+<section class="section-py bg-slate-deep">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-12 col-lg-8">
+        <span class="eyebrow eyebrow-light">Testimoni Klien</span>
+        <h2 class="text-white">Kepercayaan Instansi dan Perusahaan</h2>
+        <p class="text-white-50 prose-text">
+          Pengalaman nyata dari para manajer HRD, panitia seminar, dan instansi yang telah mempercayakan pengadaan souvenir dan merchandise korporat kepada kami.
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      {testimonials.map((item) => (
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="testimonial-box">
+            <blockquote class="testimonial-quote">
+              {item.content}
+            </blockquote>
+            <div class="pt-3 border-top border-secondary border-opacity-25">
+              <div class="testimonial-author">{item.name}</div>
+              <div class="testimonial-meta">
+                {item.position}, {item.company}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

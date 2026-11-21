@@ -1,0 +1,321 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getGallery } from '../../lib/db.js';
+
+const gallery = await getGallery();
+---
+
+<AdminLayout title="Kelola Galeri Foto" activeNav="galeri">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h4 mb-1">Galeri Dokumentasi Produksi</h2>
+      <span class="text-small text-slate-soft">Foto hasil kerja bengkel yang tampil di website publik.</span>
+    </div>
+    <button
+      type="button"
+      class="btn-sk"
+      id="btnOpenAddGallery"
+    >
+      Tambah Foto Baru
+    </button>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-responsive">
+      <table class="table-sk">
+        <thead>
+          <tr>
+            <th style="width: 15%;">Thumbnail</th>
+            <th style="width: 45%;">Teks Alternatif (Alt SEO)</th>
+            <th style="width: 15%;">Tampil di Beranda</th>
+            <th style="width: 10%;">Urutan</th>
+            <th style="width: 15%;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {gallery.map((item) => (
+            <tr>
+              <td>
+                <img
+                  src={item.image_url}
+                  alt={item.alt_text}
+                  style="width: 70px; height: 50px; object-fit: cover;"
+                  class="border-line"
+                />
+              </td>
+              <td>
+                <div class="fw-bold text-small">{item.alt_text}</div>
+                <div class="text-small text-slate-soft text-truncate" style="max-width: 320px;">
+                  {item.image_url}
+                </div>
+              </td>
+              <td>
+                <span class={`badge-status ${item.is_featured ? 'active' : ''}`}>
+                  {item.is_featured ? 'Ya' : 'Tidak'}
+                </span>
+              </td>
+              <td class="text-small">{item.sort_order}</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn-action btn-action-delete btn-delete-gallery"
+                  data-id={item.id}
+                >
+                  Hapus
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Tambah Galeri dengan File Picker -->
+  <div class="modal fade" id="modalGalleryForm" tabindex="-1" aria-labelledby="modalGalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content border-line" style="border-radius: var(--radius);">
+        <div class="modal-header bg-slate text-white">
+          <h3 class="modal-title h5" id="modalGalLabel">Tambah Foto Galeri</h3>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <form id="galleryForm">
+          <div class="modal-body p-4">
+            <!-- Pilihan Berkas Gambar (Bukan URL) -->
+            <div class="mb-3">
+              <label class="form-label-sk">Foto Galeri *</label>
+              <input type="hidden" id="galUrl" required />
+              <input type="file" id="galFileInput" accept="image/jpeg,image/png,image/webp" style="display: none;" />
+
+              <div class="upload-dropzone" id="dropzoneGallery">
+                <div id="galEmptyState">
+                  <p class="fw-bold mb-1">Klik untuk memilih foto dari perangkat Anda</p>
+                  <span class="text-small text-slate-soft d-block">Maksimal 2 MB (JPG, PNG, WebP)</span>
+                  <button type="button" class="btn-sk mt-3" style="padding: 0.5rem 1.25rem; font-size: 0.75rem;" id="btnBrowseGal">
+                    Pilih Berkas Foto
+                  </button>
+                </div>
+
+                <div id="galPreviewState" class="d-none align-items-center justify-content-between p-2">
+                  <div class="d-flex align-items-center gap-3">
+                    <img id="galPreviewImg" src="" alt="Pratinjau" style="width: 70px; height: 50px; object-fit: cover;" class="border-line" />
+                    <div class="text-start">
+                      <div class="fw-bold text-small" id="galFileName">foto-galeri.webp</div>
+                      <div class="text-small text-khaki-deep" id="galUploadStatus">Foto siap disimpan</div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn-sk-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;" id="btnChangeGal">
+                    Ganti
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="galAlt" class="form-label-sk">Teks Alternatif (Deskripsi Foto untuk SEO) *</label>
+              <input type="text" id="galAlt" class="form-control-sk" required placeholder="Contoh: Produksi tumbler grafir logo BUMN" />
+            </div>
+
+            <div class="row g-3">
+              <div class="col-6">
+                <label for="galFeatured" class="form-label-sk">Tampil di Beranda</label>
+                <select id="galFeatured" class="form-control-sk">
+                  <option value="true">Ya</option>
+                  <option value="false">Tidak</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="galOrder" class="form-label-sk">Urutan Tampil</label>
+                <input type="number" id="galOrder" class="form-control-sk" value="1" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer p-3 bg-khaki-tint border-line-top">
+            <button type="button" class="btn-sk-outline" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn-sk" id="btnSaveGal">Simpan Foto</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const galleryForm = document.getElementById('galleryForm') as HTMLFormElement;
+      const btnAdd = document.getElementById('btnOpenAddGallery');
+      const galUrl = document.getElementById('galUrl') as HTMLInputElement;
+      const galAlt = document.getElementById('galAlt') as HTMLInputElement;
+      const galFeatured = document.getElementById('galFeatured') as HTMLSelectElement;
+      const galOrder = document.getElementById('galOrder') as HTMLInputElement;
+      const btnSave = document.getElementById('btnSaveGal') as HTMLButtonElement;
+
+      // File upload handler
+      const fileInput = document.getElementById('galFileInput') as HTMLInputElement;
+      const btnBrowse = document.getElementById('btnBrowseGal');
+      const btnChange = document.getElementById('btnChangeGal');
+      const dropzone = document.getElementById('dropzoneGallery');
+      const emptyState = document.getElementById('galEmptyState');
+      const previewState = document.getElementById('galPreviewState');
+      const previewImg = document.getElementById('galPreviewImg') as HTMLImageElement;
+      const fileNameDisplay = document.getElementById('galFileName');
+      const uploadStatus = document.getElementById('galUploadStatus');
+
+      function showPreview(url: string, name: string = 'Foto terpilih') {
+        if (url) {
+          galUrl.value = url;
+          previewImg.src = url;
+          if (fileNameDisplay) fileNameDisplay.textContent = name;
+          if (uploadStatus) {
+            uploadStatus.textContent = 'Foto siap disimpan';
+            uploadStatus.className = 'text-small text-khaki-deep';
+          }
+          emptyState?.classList.add('d-none');
+          previewState?.classList.remove('d-none');
+          previewState?.classList.add('d-flex');
+        } else {
+          galUrl.value = '';
+          previewImg.src = '';
+          emptyState?.classList.remove('d-none');
+          previewState?.classList.add('d-none');
+          previewState?.classList.remove('d-flex');
+        }
+      }
+
+      btnBrowse?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput?.click();
+      });
+
+      btnChange?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput?.click();
+      });
+
+      dropzone?.addEventListener('click', () => {
+        if (!galUrl.value) fileInput?.click();
+      });
+
+      fileInput?.addEventListener('change', async () => {
+        if (!fileInput.files || fileInput.files.length === 0) return;
+        const file = fileInput.files[0];
+
+        if (file.size > 2 * 1024 * 1024) {
+          alert('Ukuran file melebihi batas maksimal 2 MB.');
+          fileInput.value = '';
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          showPreview(e.target?.result as string, file.name);
+          if (uploadStatus) {
+            uploadStatus.textContent = 'Mengunggah ke penyimpanan...';
+            uploadStatus.className = 'text-small text-slate-soft';
+          }
+        };
+        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const res = await fetch('/api/admin/upload', {
+            method: 'POST',
+            body: formData
+          });
+          const result = await res.json();
+
+          if (result.success && result.url) {
+            galUrl.value = result.url;
+            previewImg.src = result.url;
+            if (uploadStatus) {
+              uploadStatus.textContent = 'Foto berhasil diunggah';
+              uploadStatus.className = 'text-small text-khaki-deep';
+            }
+          } else {
+            alert('Gagal mengunggah foto: ' + (result.error || 'Terjadi kesalahan'));
+            showPreview('');
+          }
+        } catch (err) {
+          alert('Terjadi kendala jaringan.');
+          showPreview('');
+        }
+      });
+
+      // Buka modal
+      btnAdd?.addEventListener('click', () => {
+        galleryForm.reset();
+        showPreview('');
+        // @ts-ignore
+        window.skOpenModal('modalGalleryForm');
+      });
+
+      // Submit Form Galeri
+      galleryForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!galUrl.value) {
+          alert('Harap pilih foto terlebih dahulu.');
+          return;
+        }
+
+        btnSave.disabled = true;
+        btnSave.textContent = 'Menyimpan...';
+
+        const payload = {
+          image_url: galUrl.value,
+          alt_text: galAlt.value,
+          is_featured: galFeatured.value === 'true',
+          sort_order: Number(galOrder.value) || 1
+        };
+
+        try {
+          const res = await fetch('/api/admin/gallery', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await res.json();
+
+          if (result.success) {
+            // @ts-ignore
+            window.skCloseModal('modalGalleryForm');
+            window.location.reload();
+          } else {
+            alert('Gagal menyimpan foto: ' + (result.error || 'Terjadi kesalahan'));
+            btnSave.disabled = false;
+            btnSave.textContent = 'Simpan Foto';
+          }
+        } catch (err) {
+          alert('Terjadi kesalahan jaringan.');
+          btnSave.disabled = false;
+          btnSave.textContent = 'Simpan Foto';
+        }
+      });
+
+      // Hapus Galeri
+      document.querySelectorAll('.btn-delete-gallery').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-id');
+          if (confirm('Hapus foto ini dari galeri?')) {
+            try {
+              const res = await fetch('/api/admin/gallery', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+              });
+              const result = await res.json();
+              if (result.success) {
+                window.location.reload();
+              } else {
+                alert('Gagal menghapus foto.');
+              }
+            } catch (err) {
+              alert('Terjadi kesalahan jaringan.');
+            }
+          }
+        });
+      });
+    });
+  </script>
+</AdminLayout>

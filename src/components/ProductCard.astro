@@ -1,0 +1,64 @@
+---
+import { getProductWhatsAppUrl } from "../lib/whatsapp.js";
+
+interface Props {
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    short_description: string;
+    main_image: string;
+    is_featured?: boolean;
+  };
+}
+
+const { product } = Astro.props;
+const waUrl = getProductWhatsAppUrl(product.name, product.price);
+const formattedPrice = `Rp ${Number(product.price).toLocaleString("id-ID")}`;
+---
+
+<article class="card-product">
+  <div class="card-product-img-box">
+    {product.is_featured && (
+      <span class="badge-featured">Unggulan</span>
+    )}
+    <img
+      src={product.main_image}
+      alt={`${product.name} custom logo untuk souvenir kantor`}
+      loading="lazy"
+      width="400"
+      height="500"
+    />
+  </div>
+
+  <div class="card-product-body">
+    <h3 class="card-product-title">
+      <a href={`/produk/${product.slug}`} class="text-reset text-decoration-none">
+        {product.name}
+      </a>
+    </h3>
+
+    <p class="card-product-desc">
+      {product.short_description}
+    </p>
+
+    <div class="card-product-price">
+      {formattedPrice}
+    </div>
+
+    <div class="card-product-actions">
+      <a href={`/produk/${product.slug}`} class="btn-sk-outline">
+        Detail Produk
+      </a>
+      <a
+        href={waUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-sk"
+      >
+        Pesan via WA
+      </a>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,215 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageBanner from '../components/PageBanner.astro';
+import { createMessage } from '../lib/db.js';
+
+let successMessage = "";
+let errorMessage = "";
+let formData = {
+  name: "",
+  email: "",
+  phone: "",
+  subject: "",
+  message: ""
+};
+
+// Handle Form Submission (SSR POST)
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const honeypot = data.get("_gotcha")?.toString();
+
+    // Proteksi Spam via Honeypot
+    if (honeypot) {
+      // Spam terdeteksi, gagalkan secara senyap
+      successMessage = "Pesan Anda telah terkirim.";
+    } else {
+      const name = data.get("name")?.toString().trim() || "";
+      const email = data.get("email")?.toString().trim() || "";
+      const phone = data.get("phone")?.toString().trim() || "";
+      const subject = data.get("subject")?.toString().trim() || "";
+      const message = data.get("message")?.toString().trim() || "";
+
+      formData = { name, email, phone, subject, message };
+
+      // Validasi Server
+      if (!name || !email || !phone || !message) {
+        errorMessage = "Harap lengkapi semua kolom wajib bertanda bintang (*).";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorMessage = "Format alamat email tidak valid.";
+      } else if (message.length < 10) {
+        errorMessage = "Pesan terlalu singkat (minimal 10 karakter).";
+      } else {
+        await createMessage({ name, email, phone, subject, message });
+        successMessage = "Terima kasih! Pesan Anda telah kami terima. Tim konsultan seminarkit akan segera menghubungi Anda kembali melalui WhatsApp atau email.";
+        formData = { name: "", email: "", phone: "", subject: "", message: "" };
+      }
+    }
+  } catch (err) {
+    errorMessage = "Terjadi kendala saat mengirim pesan. Silakan hubungi kami via WhatsApp langsung.";
+  }
+}
+---
+
+<BaseLayout
+  title="Hubungi Kami - Konsultasi & Pemesanan Souvenir | seminarkit"
+  description="Hubungi tim seminarkit untuk konsultasi pengadaan souvenir kantor, paket seminar kit, dan penawaran harga resmi. Tersedia layanan via WhatsApp dan form pesan."
+>
+  <!-- Page Banner & Breadcrumb: Beranda > Kontak -->
+  <PageBanner
+    eyebrow="Layanan Pelanggan"
+    title="Hubungi seminarkit"
+    description="Sampaikan kebutuhan acara perusahaan Anda. Kami siap melayani konsultasi konsep, perhitungan bujet, hingga penerbitan penawaran resmi."
+    breadcrumbs={[
+      { label: "Beranda", href: "/" },
+      { label: "Kontak" }
+    ]}
+  />
+
+  <section class="section-py bg-paper">
+    <div class="container">
+      <div class="row g-5">
+        <!-- Kolom Kiri: Informasi Kontak Sesuai DESIGN.md -->
+        <div class="col-12 col-lg-5">
+          <span class="eyebrow">Informasi Kontak</span>
+          <h2 class="mb-4">Saluran Komunikasi Langsung</h2>
+          
+          <div class="d-flex flex-column gap-4">
+            <div class="pb-3 border-line-bottom">
+              <span class="eyebrow" style="font-size: 0.6875rem;">Alamat Workshop & Kantor</span>
+              <p class="mb-0" style="font-size: 1.0625rem;">
+                Jl. Bendungan Sigura-gura No. 12, Sumbersari, Kec. Lowokwaru, Kota Malang, Jawa Timur 65145
+              </p>
+            </div>
+
+            <div class="pb-3 border-line-bottom">
+              <span class="eyebrow" style="font-size: 0.6875rem;">Respon Cepat WhatsApp</span>
+              <p class="mb-0" style="font-size: 1.125rem; font-weight: 700;">
+                <a href="https://wa.me/6282232730246" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-none">
+                  0822-3273-0246
+                </a>
+              </p>
+              <span class="text-small text-slate-soft">Melayani chat, pengiriman file logo, dan voice call</span>
+            </div>
+
+            <div class="pb-3 border-line-bottom">
+              <span class="eyebrow" style="font-size: 0.6875rem;">Email Resmi Perusahaan</span>
+              <p class="mb-0" style="font-size: 1.0625rem;">
+                <a href="mailto:halo@seminarkit.id" class="link-sk">halo@seminarkit.id</a>
+              </p>
+              <span class="text-small text-slate-soft">Untuk penerbitan PO resmi dan dokumen tender</span>
+            </div>
+
+            <div class="pb-3 border-line-bottom">
+              <span class="eyebrow" style="font-size: 0.6875rem;">Jam Layanan Operasional</span>
+              <p class="mb-0" style="font-size: 1.0625rem;">
+                Senin – Sabtu: 08.00 – 17.00 WIB
+              </p>
+              <span class="text-small text-slate-soft">Hari Minggu & Libur Nasional tetap menerima pesan WhatsApp</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Formulir Kontak -->
+        <div class="col-12 col-lg-7">
+          <div class="p-4 p-md-5 bg-white border-line">
+            <span class="eyebrow">Kirim Pesan</span>
+            <h2 class="mb-3" style="font-size: 1.875rem;">Formulir Permintaan Penawaran</h2>
+            <p class="text-slate-soft mb-4">
+              Isi data diri dan rincian kebutuhan Anda di bawah ini. Tim kami akan merespons dalam waktu maksimal 1x24 jam kerja.
+            </p>
+
+            {successMessage && (
+              <div class="alert-sk-success" role="alert">
+                <strong>Pesan Berhasil Terkirim!</strong>
+                <div class="mt-1">{successMessage}</div>
+              </div>
+            )}
+
+            {errorMessage && (
+              <div class="mb-4 p-3 border-line" style="background-color: #FDF2F2; border-color: #8C2F2F; color: #8C2F2F;" role="alert">
+                {errorMessage}
+              </div>
+            )}
+
+            <form method="POST" action="/kontak">
+              <!-- Honeypot Field Anti-Spam (Tersembunyi) -->
+              <input type="text" name="_gotcha" style="display:none !important;" tabindex="-1" autocomplete="off" />
+
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label for="name" class="form-label-sk">Nama Lengkap *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    class="form-control-sk"
+                    required
+                    placeholder="Contoh: Budi Santoso"
+                    value={formData.name}
+                  />
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="email" class="form-label-sk">Alamat Email *</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control-sk"
+                    required
+                    placeholder="nama@instansi.com"
+                    value={formData.email}
+                  />
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="phone" class="form-label-sk">Nomor Telepon / WhatsApp *</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    class="form-control-sk"
+                    required
+                    placeholder="08123456789"
+                    value={formData.phone}
+                  />
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="subject" class="form-label-sk">Subjek / Acara</label>
+                  <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    class="form-control-sk"
+                    placeholder="Contoh: Paket Seminar Kit Rakernas 100 Pax"
+                    value={formData.subject}
+                  />
+                </div>
+
+                <div class="col-12">
+                  <label for="message" class="form-label-sk">Rincian Kebutuhan & Pesan *</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    class="form-control-sk"
+                    rows="4"
+                    required
+                    placeholder="Sebutkan jenis produk yang diinginkan, estimasi kuantiti, tanggal acara, serta kota tujuan pengiriman..."
+                  >{formData.message}</textarea>
+                </div>
+
+                <div class="col-12 mt-4">
+                  <button type="submit" class="btn-sk w-100 text-center py-3">
+                    Kirim Pesan
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

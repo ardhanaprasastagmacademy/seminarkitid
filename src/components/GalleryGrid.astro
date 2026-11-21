@@ -1,0 +1,148 @@
+---
+interface GalleryItem {
+  id: string;
+  image_url: string;
+  alt_text: string;
+}
+
+interface Props {
+  items: GalleryItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="gallery-grid" id="galleryContainer">
+  {items.map((item, index) => (
+    <div
+      class="gallery-item"
+      data-index={index}
+      data-src={item.image_url}
+      data-alt={item.alt_text}
+      role="button"
+      tabindex="0"
+      aria-label={`Lihat foto: ${item.alt_text}`}
+    >
+      <img
+        src={item.image_url}
+        alt={item.alt_text}
+        loading="lazy"
+        width="400"
+        height="300"
+      />
+    </div>
+  ))}
+</div>
+
+<!-- Lightbox Modal Sesuai DESIGN.md (Teks: Tutup, Sebelumnya, Berikutnya - Tanpa Panah) -->
+<div
+  class="lightbox-overlay"
+  id="galleryLightbox"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Penampil Galeri Foto"
+>
+  <div class="lightbox-header">
+    <button type="button" class="btn-sk-outline-light" id="lightboxClose">
+      Tutup
+    </button>
+  </div>
+
+  <div class="lightbox-content">
+    <img
+      src=""
+      alt=""
+      id="lightboxImg"
+      class="lightbox-img"
+    />
+  </div>
+
+  <div class="lightbox-footer">
+    <button type="button" class="btn-sk-outline-light" id="lightboxPrev">
+      Sebelumnya
+    </button>
+    <span class="text-white text-small" id="lightboxCounter">1 / {items.length}</span>
+    <button type="button" class="btn-sk-outline-light" id="lightboxNext">
+      Berikutnya
+    </button>
+  </div>
+</div>
+
+<script>
+  // Script interaktif untuk lightbox galeri
+  document.addEventListener('DOMContentLoaded', () => {
+    const items = document.querySelectorAll<HTMLElement>('.gallery-item');
+    const lightbox = document.getElementById('galleryLightbox');
+    const lightboxImg = document.getElementById('lightboxImg') as HTMLImageElement;
+    const lightboxCounter = document.getElementById('lightboxCounter');
+    const btnClose = document.getElementById('lightboxClose');
+    const btnPrev = document.getElementById('lightboxPrev');
+    const btnNext = document.getElementById('lightboxNext');
+
+    if (!items.length || !lightbox || !lightboxImg || !lightboxCounter) return;
+
+    let currentIndex = 0;
+    const total = items.length;
+
+    function openLightbox(index: number) {
+      currentIndex = index;
+      const targetItem = items[currentIndex];
+      const src = targetItem.getAttribute('data-src') || '';
+      const alt = targetItem.getAttribute('data-alt') || '';
+
+      lightboxImg.src = src;
+      lightboxImg.alt = alt;
+      lightboxCounter.textContent = `${currentIndex + 1} / ${total}`;
+      lightbox.classList.add('is-active');
+      document.body.style.overflow = 'hidden';
+      btnClose?.focus();
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('is-active');
+      document.body.style.overflow = '';
+      const originItem = items[currentIndex];
+      originItem?.focus();
+    }
+
+    function showPrev() {
+      currentIndex = (currentIndex - 1 + total) % total;
+      openLightbox(currentIndex);
+    }
+
+    function showNext() {
+      currentIndex = (currentIndex + 1) % total;
+      openLightbox(currentIndex);
+    }
+
+    items.forEach((item) => {
+      const idx = Number(item.getAttribute('data-index') || 0);
+      item.addEventListener('click', () => openLightbox(idx));
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openLightbox(idx);
+        }
+      });
+    });
+
+    btnClose?.addEventListener('click', closeLightbox);
+    btnPrev?.addEventListener('click', showPrev);
+    btnNext?.addEventListener('click', showNext);
+
+    // Keyboard support: Esc, ArrowLeft, ArrowRight
+    window.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('is-active')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') showPrev();
+      if (e.key === 'ArrowRight') showNext();
+    });
+
+    // Close on backdrop click outside image/buttons
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    });
+  });
+</script>

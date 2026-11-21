@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="404 - Halaman Tidak Ditemukan | seminarkit"
+  description="Halaman yang Anda cari tidak ditemukan. Silakan kembali ke beranda atau telusuri katalog souvenir kantor kami."
+  noindex={true}
+>
+  <section class="section-py bg-paper d-flex align-items-center" style="min-height: 70vh;">
+    <div class="container text-center">
+      <!-- Angka 404 Sangat Besar dalam --font-display Sesuai DESIGN.md Bagian 6.16 -->
+      <div
+        class="font-display mb-3"
+        style="font-size: clamp(6rem, 16vw, 11rem); font-weight: 600; line-height: 1; color: var(--khaki);"
+      >
+        404
+      </div>
+
+      <h1 class="h2 mb-3">Halaman Tidak Ditemukan</h1>
+      
+      <p class="lead-text prose-text mx-auto mb-5">
+        Halaman yang Anda tuju mungkin telah dipindahkan, berganti alamat, atau tidak lagi tersedia.
+      </p>
+
+      <div class="d-flex justify-content-center flex-wrap gap-3">
+        <a href="/" class="btn-sk">
+          Kembali ke Beranda
+        </a>
+        <a href="/produk" class="btn-sk-outline">
+          Lihat Produk
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,45 @@
+---
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const {
+  eyebrow = "seminarkit",
+  title,
+  description,
+  breadcrumbs = [{ label: "Beranda", href: "/" }]
+} = Astro.props;
+---
+
+<section class="page-banner">
+  <div class="container">
+    <!-- Breadcrumb (Terletak di dalam banner, di atas judul) -->
+    <nav class="breadcrumb-sk" aria-label="Breadcrumb">
+      {breadcrumbs.map((item, index) => {
+        const isLast = index === breadcrumbs.length - 1;
+        return (
+          <>
+            {index > 0 && <span class="text-white-50" aria-hidden="true">/</span>}
+            {isLast || !item.href ? (
+              <span class="breadcrumb-active" aria-current="page">{item.label}</span>
+            ) : (
+              <a href={item.href}>{item.label}</a>
+            )}
+          </>
+        );
+      })}
+    </nav>
+
+    {eyebrow && <span class="eyebrow eyebrow-light">{eyebrow}</span>}
+    <h1 class="banner-title">{title}</h1>
+    {description && <p class="banner-desc">{description}</p>}
+  </div>
+</section>

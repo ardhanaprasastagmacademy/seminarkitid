@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageBanner from '../../components/PageBanner.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import Cta from '../../components/Cta.astro';
+import { getProducts } from '../../lib/db.js';
+
+// Mengambil semua produk aktif dari database
+const products = await getProducts({ activeOnly: true });
+---
+
+<BaseLayout
+  title="Paket Seminar Kit & Souvenir Kantor Custom | seminarkit"
+  description="Lihat katalog seminar kit dan souvenir kantor lengkap dengan harga. Pilihan tumbler custom, notebook agenda, tas kanvas, dan paket seminar kit eksklusif."
+>
+  <!-- Page Banner & Breadcrumb Sesuai PRD -->
+  <PageBanner
+    eyebrow="Katalog Resmi"
+    title="Produk & Paket Seminar Kit"
+    description="Pilihan souvenir kantor dan paket seminar kit custom logo lengkap dengan transparansi harga dan spesifikasi teknis."
+    breadcrumbs={[
+      { label: "Beranda", href: "/" },
+      { label: "Produk" }
+    ]}
+  />
+
+  <!-- Grid Produk Dinamis -->
+  <section class="section-py bg-paper">
+    <div class="container">
+      {products.length === 0 ? (
+        <div class="p-5 text-center bg-khaki-tint border-line">
+          <h2 class="mb-2">Katalog Sedang Diperbarui</h2>
+          <p class="text-slate-soft mb-4">
+            Saat ini produk sedang dalam proses kurasi berkala. Silakan hubungi kami langsung via WhatsApp untuk daftar katalog terbaru.
+          </p>
+          <a
+            href="https://wa.me/6282232730246?text=Halo%20seminarkit,%20saya%20ingin%20meminta%20katalog%20souvenir%20terbaru"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-sk"
+          >
+            Minta Katalog via WhatsApp
+          </a>
+        </div>
+      ) : (
+        <div class="row g-4">
+          {products.map((product) => (
+            <div class="col-12 col-md-6 col-lg-4">
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- CTA Khusus Kebutuhan Custom & Partai Besar -->
+  <Cta
+    title="Ingin Kombinasi Paket Khusus Sesuai Bujet Per Peserta?"
+    description="Kami melayani perakitan custom package dengan kombinasi barang pilihan dan cetak kemasan hardbox eksklusif. Konsultasikan kebutuhan instansi Anda langsung."
+  />
+</BaseLayout>

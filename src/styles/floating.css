@@ -1,0 +1,119 @@
+/* Pop up WhatsApp Melayang & Tombol Back to Top sesuai DESIGN.md */
+
+.float-wa, .float-top {
+  position: fixed;
+  right: 20px;
+  z-index: 1040;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  border-radius: var(--radius);
+  font: 700 0.75rem/1 var(--font-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--t-base) var(--ease), color var(--t-base) var(--ease), border-color var(--t-base) var(--ease), opacity var(--t-base) var(--ease);
+}
+
+.float-wa {
+  bottom: 20px;
+  padding: 0 1.25rem;
+  background-color: var(--khaki);
+  color: var(--slate-deep) !important;
+  border: 1px solid var(--slate-deep);
+}
+
+.float-wa:hover {
+  background-color: var(--slate-deep);
+  color: var(--khaki) !important;
+}
+
+.float-top {
+  bottom: 84px;
+  width: 56px;
+  background-color: var(--slate);
+  color: var(--white) !important;
+  border: 1px solid var(--slate-soft);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.float-top.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.float-top:hover {
+  background-color: var(--slate-deep);
+}
+
+/* Bubble sapaan (Pop Up) di Sisi Kiri Tombol WhatsApp */
+.wa-greeting-bubble {
+  position: fixed;
+  right: 210px;
+  bottom: 20px;
+  max-width: 260px;
+  background-color: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  z-index: 1040;
+  opacity: 0;
+  transform: translateX(10px);
+  pointer-events: none;
+  transition: opacity var(--t-base) var(--ease), transform var(--t-base) var(--ease);
+}
+
+.wa-greeting-bubble.is-active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.wa-greeting-text {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--slate-deep);
+  margin-bottom: 6px;
+}
+
+.wa-greeting-close {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--khaki-deep);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.wa-greeting-close:hover {
+  color: var(--slate-deep);
+}
+
+@media (max-width: 575.98px) {
+  .float-wa, .float-top {
+    right: 14px;
+    height: 48px;
+  }
+  .float-wa {
+    bottom: 14px;
+    padding: 0 1rem;
+    font-size: 0.6875rem;
+  }
+  .float-top {
+    bottom: 70px;
+    width: 48px;
+    font-size: 0.6875rem;
+  }
+  .wa-greeting-bubble {
+    right: 14px;
+    bottom: 68px;
+    max-width: 220px;
+  }
+}

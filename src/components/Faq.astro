@@ -1,0 +1,67 @@
+---
+interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  faqs: FaqItem[];
+  accordionId?: string;
+}
+
+const { faqs, accordionId = "faqAccordion" } = Astro.props;
+
+// JSON-LD untuk FAQPage (AEO & GEO Optimization)
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map((f) => ({
+    "@type": "Question",
+    "name": f.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": f.answer
+    }
+  }))
+};
+---
+
+<div class="accordion" id={accordionId}>
+  {faqs.map((item, index) => {
+    const headingId = `heading-${accordionId}-${index}`;
+    const collapseId = `collapse-${accordionId}-${index}`;
+    const isFirst = index === 0;
+
+    return (
+      <div class="accordion-item">
+        <h3 class="accordion-header" id={headingId}>
+          <button
+            class={`accordion-button ${isFirst ? "" : "collapsed"}`}
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target={`#${collapseId}`}
+            aria-expanded={isFirst ? "true" : "false"}
+            aria-controls={collapseId}
+          >
+            <span>{item.question}</span>
+            <span class="sk-plus" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <div
+          id={collapseId}
+          class={`accordion-collapse collapse ${isFirst ? "show" : ""}`}
+          aria-labelledby={headingId}
+          data-bs-parent={`#${accordionId}`}
+        >
+          <div class="accordion-body">
+            {item.answer}
+          </div>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+<!-- Injeksi Schema FAQPage -->
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />

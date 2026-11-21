@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageBanner from '../../components/PageBanner.astro';
+import Cta from '../../components/Cta.astro';
+import { getPostBySlug, getPosts, getProducts } from '../../lib/db.js';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/blog');
+}
+
+const post = await getPostBySlug(slug);
+
+if (!post) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Artikel Tidak Ditemukan'
+  });
+}
+
+// Rekomendasi artikel terkait & produk terkait untuk internal linking (SEO)
+const [allPosts, products] = await Promise.all([
+  getPosts({ publishedOnly: true }),
+  getProducts({ featuredOnly: true })
+]);
+
+const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 2);
+
+const dateFormatted = post.published_at
+  ? new Date(post.published_at).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    })
+  : "Terbaru";
+
+const metaTitle = post.meta_title || `${post.title} | seminarkit`;
+const metaDescription = post.meta_description || post.excerpt;
+---
+
+<BaseLayout
+  title={metaTitle}
+  description={metaDescription}
+  ogImage={post.cover_image}
+  jsonLdType="Article"
+  jsonLdData={{
+    title: post.title,
+    excerpt: post.excerpt,
+    slug: post.slug,
+    cover_image: post.cover_image,
+    author: post.author,
+    published_at: post.published_at
+  }}
+>
+  <!-- Page Banner & Breadcrumb: Beranda > Blog > [Judul Artikel] -->
+  <PageBanner
+    eyebrow="Artikel & Wawasan"
+    title={post.title}
+    description={`Ditulis oleh ${post.author || "Tim seminarkit"} • Dipublikasikan pada ${dateFormatted}`}
+    breadcrumbs={[
+      { label: "Beranda", href: "/" },
+      { label: "Blog", href: "/blog" },
+      { label: post.title }
+    ]}
+  />
+
+  <!-- Konten Utama Artikel (Maksimal 720px Sesuai DESIGN.md) -->
+  <article class="section-py bg-paper">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-8" style="max-width: 760px;">
+          <!-- Gambar Utama Selebar Container Konten -->
+          {post.cover_image && (
+            <div class="mb-5 border-line bg-khaki-tint">
+              <img
+                src={post.cover_image}
+                alt={post.title}
+                class="w-100"
+                style="aspect-ratio: 16/10; object-fit: cover;"
+                width="760"
+                height="475"
+              />
+            </div>
+          )}
+
+          <!-- Body Artikel -->
+          <div class="prose-content" set:html={post.content} />
+
+          <!-- Tautan Internal ke Katalog Produk Terkait Sesuai SEO-STRATEGY.md -->
+          <div class="p-4 mt-5 bg-khaki-tint border-line">
+            <h3 style="font-size: 1.25rem;" class="mb-2">Butuh Paket Seminar Kit untuk Acara Anda?</h3>
+            <p class="text-small text-slate-soft mb-3">
+              Jelajahi berbagai pilihan tumbler custom, buku agenda kulit, dan goodie bag yang siap diproduksi dengan logo perusahaan Anda.
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+              <a href="/produk" class="btn-sk" style="padding: 0.625rem 1.25rem; font-size: 0.75rem;">
+                Lihat Katalog Produk
+              </a>
+              <a
+                href="https://wa.me/6282232730246?text=Halo%20seminarkit,%20saya%20tertarik%20konsultasi%20paket%20seminar%20kit"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-sk-outline"
+                style="padding: 0.625rem 1.25rem; font-size: 0.75rem;"
+              >
+                Konsultasi via WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <!-- Artikel Terkait -->
+          {relatedPosts.length > 0 && (
+            <div class="mt-5 pt-4 border-line-top">
+              <span class="eyebrow">Bacaan Lanjutan</span>
+              <h3 class="mb-4">Artikel Terkait</h3>
+              <div class="row g-4">
+                {relatedPosts.map((relPost) => (
+                  <div class="col-12 col-md-6">
+                    <div class="p-3 bg-white border-line h-100 d-flex flex-column">
+                      <span class="eyebrow" style="font-size: 0.6875rem;">Artikel Rekomendasi</span>
+                      <h4 style="font-size: 1.125rem;" class="mb-2">
+                        <a href={`/blog/${relPost.slug}`} class="text-reset text-decoration-none">
+                          {relPost.title}
+                        </a>
+                      </h4>
+                      <p class="text-small text-slate-soft mb-3" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        {relPost.excerpt}
+                      </p>
+                      <div class="mt-auto">
+                        <a href={`/blog/${relPost.slug}`} class="link-sk">
+                          Baca Selengkapnya
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- CTA -->
+  <Cta />
+</BaseLayout>

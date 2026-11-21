@@ -1,0 +1,121 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageBanner from '../components/PageBanner.astro';
+import Cta from '../components/Cta.astro';
+---
+
+<BaseLayout
+  title="Tentang Kami - Vendor Souvenir Kantor & Seminar Kit | seminarkit"
+  description="Kenali seminarkit, penyedia souvenir kantor dan seminar kit profesional yang melayani perusahaan, kementerian, BUMN, dan event organizer di seluruh Indonesia."
+>
+  <!-- Page Banner & Breadcrumb -->
+  <PageBanner
+    eyebrow="Profil Perusahaan"
+    title="Tentang seminarkit"
+    description="Mitra strategis pengadaan souvenir kantor dan seminar kit berkualitas tinggi untuk instansi korporat dan panitia acara di seluruh Indonesia."
+    breadcrumbs={[
+      { label: "Beranda", href: "/" },
+      { label: "Tentang Kami" }
+    ]}
+  />
+
+  <!-- Profil & Cerita Singkat -->
+  <section class="section-py bg-paper">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-12 col-lg-6">
+          <span class="eyebrow">Dedikasi & Nilai Kami</span>
+          <h2 class="title-with-bar mb-3">
+            Membangun Reputasi Positif Melalui Cenderamata Fungsional
+          </h2>
+          <p class="prose-text mb-3">
+            Didirikan dari semangat menghadirkan souvenir kantor yang bermakna, <strong>seminarkit</strong> percaya bahwa cenderamata perusahaan adalah duta bisu (silent ambassador) dari profesionalisme brand Anda. Kami menolak anggapan bahwa seminar kit hanyalah sekadar formalitas pembagian tas atau pulpen murahan.
+          </p>
+          <p class="prose-text mb-3">
+            Setiap produk yang kami kurasi—mulai dari tumbler stainless steel tahan panas dingin, buku agenda jilid kulit bertekstur mewah, hingga tas kanvas tebal dengan jahitan kuat—dipilih secara seksama agar memberikan kenyamanan maksimal bagi para penerimanya.
+          </p>
+          <p class="prose-text mb-0">
+            Hingga hari ini, kami telah dipercaya oleh lebih dari 500 institusi pemerintah, badan usaha milik negara (BUMN), perusahaan multinasional, hingga lembaga pendidikan tinggi dalam menyukseskan rangkaian seminar nasional, rapat pimpinan, pelatihan SDM, dan apresiasi akhir tahun.
+          </p>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="p-2 border-line bg-khaki-tint">
+            <img
+              src="https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=80"
+              alt="Standar Kurasi dan Produksi Souvenir Kantor seminarkit"
+              class="w-100"
+              style="aspect-ratio: 4/3; object-fit: cover;"
+              width="600"
+              height="450"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Keunggulan Grid Card -->
+  <section class="section-py bg-khaki-tint border-line-top">
+    <div class="container">
+      <div class="row mb-5">
+        <div class="col-12 col-lg-8">
+          <span class="eyebrow">Keunggulan Standar Layanan</span>
+          <h2>Komitmen Kami untuk Kepuasan Anda</h2>
+          <p class="lead-text prose-text">
+            Pengadaan korporat membutuhkan kepastian mutu, efisiensi administrasi, dan ketepatan tenggat waktu.
+          </p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="p-4 bg-white border-line h-100">
+            <div class="step-number mb-2" style="font-size: 2.25rem;">01</div>
+            <h3 style="font-size: 1.25rem;" class="mb-2">Material Berkualitas</h3>
+            <p class="text-small text-slate-soft mb-0">
+              Penggunaan bahan baku standar korporat yang food-grade, tahan lama, dan tidak mudah rusak.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="p-4 bg-white border-line h-100">
+            <div class="step-number mb-2" style="font-size: 2.25rem;">02</div>
+            <h3 style="font-size: 1.25rem;" class="mb-2">Mockup Desain Gratis</h3>
+            <p class="text-small text-slate-soft mb-0">
+              Tim desainer kami menyiapkan visualisasi tata letak logo pada produk sebelum produksi dimulai.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="p-4 bg-white border-line h-100">
+            <div class="step-number mb-2" style="font-size: 2.25rem;">03</div>
+            <h3 style="font-size: 1.25rem;" class="mb-2">Ketepatan Jadwal</h3>
+            <p class="text-small text-slate-soft mb-0">
+              Proses pengerjaan terpantau dengan timeline terukur untuk memastikan tiba sebelum hari H acara.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="p-4 bg-white border-line h-100">
+            <div class="step-number mb-2" style="font-size: 2.25rem;">04</div>
+            <h3 style="font-size: 1.25rem;" class="mb-2">Kirim ke Seluruh Nusantara</h3>
+            <p class="text-small text-slate-soft mb-0">
+              Kerja sama dengan jaringan kargo darat, laut, dan udara menjamin ongkos kirim aman dan hemat.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <Cta
+    title="Butuh Konsultasi Konsep Souvenir untuk Acara Mendatang?"
+    description="Sampaikan rencana tema kegiatan Anda dan biarkan tim seminarkit memberikan rekomendasi paket terbaik sesuai alokasi dana."
+  />
+</BaseLayout>

@@ -1,0 +1,98 @@
+---
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/main.css';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+import JsonLd from '../components/JsonLd.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  productName?: string;
+  jsonLdType?: 'Organization' | 'Product' | 'Article';
+  jsonLdData?: Record<string, any>;
+  noindex?: boolean;
+}
+
+const {
+  title = "Souvenir Kantor & Seminar Kit Custom Logo | seminarkit",
+  description = "Pesan souvenir kantor dan paket seminar kit custom logo berkualitas. Pilihan tumbler stainless, notebook agenda, tas kanvas, dan pulpen metal untuk seminar dan acara perusahaan.",
+  canonicalUrl = Astro.url.href,
+  ogImage = "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=1200&q=80",
+  productName,
+  jsonLdType = "Organization",
+  jsonLdData = {},
+  noindex = false
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- SEO Meta Tags Sesuai SEO-STRATEGY.md -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex ? (
+      <meta name="robots" content="noindex, nofollow" />
+    ) : (
+      <meta name="robots" content="index, follow" />
+    )}
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={jsonLdType === 'Article' ? 'article' : 'website'} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:site_name" content="seminarkit" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Preconnect Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Structured Data (JSON-LD) -->
+    <JsonLd type="Organization" />
+    {jsonLdType !== 'Organization' && (
+      <JsonLd type={jsonLdType} data={jsonLdData} />
+    )}
+  </head>
+  <body>
+    <!-- Navbar Utama -->
+    <Navbar currentPath={currentPath} />
+
+    <!-- Konten Halaman -->
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <!-- Footer Utama -->
+    <Footer />
+
+    <!-- Tombol WhatsApp Melayang & Back to Top -->
+    <WhatsAppFloat productName={productName} />
+
+    <!-- Bootstrap 5 JavaScript Bundle -->
+    <script>
+      import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+    </script>
+  </body>
+</html>

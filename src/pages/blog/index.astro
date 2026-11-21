@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageBanner from '../../components/PageBanner.astro';
+import PostCard from '../../components/PostCard.astro';
+import Cta from '../../components/Cta.astro';
+import { getPosts } from '../../lib/db.js';
+
+// Mengambil artikel yang berstatus published dari database
+const posts = await getPosts({ publishedOnly: true });
+---
+
+<BaseLayout
+  title="Artikel & Panduan Souvenir Kantor & Seminar Kit | seminarkit"
+  description="Kumpulan tips, ide souvenir kantor, estimasi bujet per peserta, dan panduan memilih paket seminar kit yang bermanfaat untuk acara perusahaan Anda."
+>
+  <!-- Page Banner & Breadcrumb: Beranda > Blog -->
+  <PageBanner
+    eyebrow="Artikel & Wawasan"
+    title="Panduan & Tips Souvenir Kantor"
+    description="Wawasan praktis untuk panitia acara, pengadaan kantor, dan HRD dalam memilih dan mengelola merchandise seminar yang berdampak positif."
+    breadcrumbs={[
+      { label: "Beranda", href: "/" },
+      { label: "Blog" }
+    ]}
+  />
+
+  <!-- Grid Artikel Blog -->
+  <section class="section-py bg-paper">
+    <div class="container">
+      {posts.length === 0 ? (
+        <div class="p-5 text-center bg-khaki-tint border-line">
+          <h2>Belum Ada Artikel</h2>
+          <p class="text-slate-soft">Artikel terbaru sedang dipersiapkan oleh tim redaksi kami.</p>
+        </div>
+      ) : (
+        <div class="row g-4">
+          {posts.map((post) => (
+            <div class="col-12 col-md-6 col-lg-4">
+              <PostCard post={post} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <Cta
+    title="Punya Pertanyaan Spesifik Seputar Pengadaan Souvenir?"
+    description="Konsultasikan langsung dengan konsultan souvenir kami melalui WhatsApp. Kami siap membantu kalkulasi estimasi anggaran acara Anda."
+  />
+</BaseLayout>

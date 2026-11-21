@@ -1,0 +1,115 @@
+---
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = Astro.url.pathname } = Astro.props;
+
+const navItems = [
+  { href: "/", label: "Beranda" },
+  { href: "/tentang", label: "Tentang" },
+  { href: "/produk", label: "Produk" },
+  { href: "/galeri", label: "Galeri" },
+  { href: "/blog", label: "Blog" },
+  { href: "/kontak", label: "Kontak" }
+];
+
+function isActive(href: string) {
+  if (href === "/") return currentPath === "/";
+  return currentPath.startsWith(href);
+}
+---
+
+<header class="navbar-sk">
+  <div class="container h-100 d-flex align-items-center justify-content-between">
+    <!-- Brand Logo -->
+    <a href="/" class="brand-logo" aria-label="seminarkit beranda">
+      seminarkit
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="d-none d-lg-flex align-items-center gap-1" aria-label="Navigasi Utama">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class={`nav-link ${isActive(item.href) ? "active" : ""}`}
+          data-text={item.label}
+          aria-current={isActive(item.href) ? "page" : undefined}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <!-- WhatsApp Quick CTA in Header (Desktop) -->
+    <div class="d-none d-lg-block">
+      <a
+        href="https://wa.me/6282232730246?text=Halo%20seminarkit,%20saya%20ingin%20konsultasi%20souvenir%20kantor"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-sk-secondary"
+        style="padding: 0.625rem 1.25rem; font-size: 0.75rem;"
+      >
+        Pesan via WA
+      </a>
+    </div>
+
+    <!-- Mobile Menu Toggle Button (Text-only according to DESIGN.md) -->
+    <button
+      type="button"
+      class="btn-menu-toggle d-lg-none"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileMenuOffcanvas"
+      aria-controls="mobileMenuOffcanvas"
+      aria-label="Buka Menu Navigasi"
+    >
+      Menu
+    </button>
+  </div>
+</header>
+
+<!-- Mobile Offcanvas Sidebar (Text-only toggle, no icons) -->
+<div
+  class="offcanvas offcanvas-end offcanvas-sk"
+  tabindex="-1"
+  id="mobileMenuOffcanvas"
+  aria-labelledby="mobileMenuOffcanvasLabel"
+>
+  <div class="offcanvas-header d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-25 p-4">
+    <span class="brand-logo" id="mobileMenuOffcanvasLabel" style="font-size: 1.5rem;">seminarkit</span>
+    <button
+      type="button"
+      class="btn-close-sk"
+      data-bs-dismiss="offcanvas"
+      aria-label="Tutup Menu"
+    >
+      Tutup
+    </button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column justify-content-between p-4">
+    <nav class="d-flex flex-column gap-3" aria-label="Navigasi Seluler">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class={`nav-link text-start p-0 ${isActive(item.href) ? "active" : ""}`}
+          style="font-size: 1.125rem;"
+          data-text={item.label}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="pt-4 border-top border-secondary border-opacity-25">
+      <p class="text-small text-white-50 mb-3">Konsultasi cepat & penawaran harga:</p>
+      <a
+        href="https://wa.me/6282232730246?text=Halo%20seminarkit,%20saya%20ingin%20konsultasi%20souvenir%20kantor"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-sk-secondary w-100 text-center"
+      >
+        Chat WhatsApp
+      </a>
+    </div>
+  </div>
+</div>

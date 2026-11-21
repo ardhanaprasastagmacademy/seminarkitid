@@ -1,0 +1,88 @@
+---
+// Pop up WhatsApp Melayang & Tombol Back to Top Sesuai DESIGN.md Bagian 6.3
+interface Props {
+  productName?: string;
+}
+
+const { productName } = Astro.props;
+
+const defaultText = productName
+  ? `Halo seminarkit, saya tertarik memesan souvenir ${productName}. Mohon info harga dan minimal ordernya.`
+  : "Halo seminarkit, saya ingin bertanya tentang produk souvenir kantor.";
+
+const waHref = `https://wa.me/6282232730246?text=${encodeURIComponent(defaultText)}`;
+---
+
+<!-- Bubble Sapaan WhatsApp (Muncul setelah 6 detik di sisi kiri tombol, sekali per sesi) -->
+<div class="wa-greeting-bubble" id="waBubble" role="status" aria-live="polite">
+  <div class="wa-greeting-text">
+    Butuh souvenir untuk acara kantor? Kami siap bantu.
+  </div>
+  <button type="button" class="wa-greeting-close" id="closeWaBubble" aria-label="Tutup pesan sapaan">
+    Tutup
+  </button>
+</div>
+
+<!-- Tombol Back to Top (Berada di atas tombol WhatsApp, tanpa ikon panah) -->
+<button
+  type="button"
+  class="float-top"
+  id="backToTopBtn"
+  aria-label="Kembali ke atas halaman"
+  title="Kembali ke atas"
+>
+  Atas
+</button>
+
+<!-- Tombol WhatsApp Melayang (Tanpa ikon, teks Chat WhatsApp) -->
+<a
+  href={waHref}
+  target="_blank"
+  rel="noopener noreferrer"
+  class="float-wa"
+  id="floatingWaBtn"
+  aria-label="Chat WhatsApp seminarkit"
+  title="Chat via WhatsApp"
+>
+  Chat WhatsApp
+</a>
+
+<script>
+  // Perilaku Pop up WhatsApp dan Back to Top sesuai panduan DESIGN.md
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Back to Top Scroll Listener
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    if (backToTopBtn) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 400) {
+          backToTopBtn.classList.add('is-visible');
+        } else {
+          backToTopBtn.classList.remove('is-visible');
+        }
+      }, { passive: true });
+
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+
+    // 2. Greeting Bubble WhatsApp (Setelah 6 detik, muncul sekali per session)
+    const waBubble = document.getElementById('waBubble');
+    const closeWaBubble = document.getElementById('closeWaBubble');
+    
+    if (waBubble && !sessionStorage.getItem('wa_bubble_dismissed')) {
+      const timer = setTimeout(() => {
+        waBubble.classList.add('is-active');
+      }, 6000);
+
+      closeWaBubble?.addEventListener('click', () => {
+        waBubble.classList.remove('is-active');
+        sessionStorage.setItem('wa_bubble_dismissed', 'true');
+        clearTimeout(timer);
+      });
+    }
+  });
+</script>

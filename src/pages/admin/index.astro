@@ -1,0 +1,106 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getAdminStats } from '../../lib/db.js';
+
+const stats = await getAdminStats();
+---
+
+<AdminLayout title="Ringkasan Dashboard" activeNav="dashboard">
+  <!-- Ringkasan Statistik (Kartu Angka Besar Sesuai DESIGN.md Bagian 7) -->
+  <div class="row g-4 mb-5">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Total Produk</span>
+        <div class="admin-stat-number">{stats.productCount}</div>
+        <a href="/admin/produk" class="link-sk text-small">Kelola Produk</a>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Pesan Baru</span>
+        <div class="admin-stat-number text-khaki-deep">{stats.newMessagesCount}</div>
+        <a href="/admin/pesan" class="link-sk text-small">Buka Pesan Masuk</a>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Foto Galeri</span>
+        <div class="admin-stat-number">{stats.galleryCount}</div>
+        <a href="/admin/galeri" class="link-sk text-small">Kelola Galeri</a>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="admin-stat-card">
+        <span class="admin-stat-label">Artikel Blog</span>
+        <div class="admin-stat-number">{stats.postCount}</div>
+        <a href="/admin/blog" class="link-sk text-small">Kelola Blog</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pesan Masuk Terbaru -->
+  <div class="admin-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="h4 mb-1">Pesan Masuk Terbaru</h2>
+        <span class="text-small text-slate-soft">Pesan dari form kontak website yang membutuhkan tindak lanjut.</span>
+      </div>
+      <a href="/admin/pesan" class="btn-sk" style="padding: 0.5rem 1rem; font-size: 0.75rem;">
+        Lihat Semua Pesan
+      </a>
+    </div>
+
+    {stats.recentMessages.length === 0 ? (
+      <div class="p-4 text-center bg-khaki-tint border-line">
+        <p class="mb-0 text-slate-soft">Belum ada pesan masuk.</p>
+      </div>
+    ) : (
+      <div class="table-responsive">
+        <table class="table-sk">
+          <thead>
+            <tr>
+              <th style="width: 15%;">Tanggal</th>
+              <th style="width: 20%;">Nama Pengirim</th>
+              <th style="width: 20%;">Kontak</th>
+              <th style="width: 30%;">Subjek & Pesan</th>
+              <th style="width: 15%;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.recentMessages.map((msg) => (
+              <tr>
+                <td class="text-small">
+                  {new Date(msg.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </td>
+                <td class="fw-bold">{msg.name}</td>
+                <td>
+                  <div class="text-small">{msg.phone}</div>
+                  <div class="text-small text-slate-soft">{msg.email}</div>
+                </td>
+                <td>
+                  <div class="fw-bold text-small">{msg.subject || "-"}</div>
+                  <div class="text-small text-slate-soft text-truncate" style="max-width: 300px;">
+                    {msg.message}
+                  </div>
+                </td>
+                <td>
+                  <span class={`badge-status ${msg.status}`}>
+                    {msg.status === 'baru' ? 'Baru' : 'Dibaca'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+</AdminLayout>

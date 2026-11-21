@@ -1,0 +1,51 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  primaryButtonText?: string;
+  primaryButtonUrl?: string;
+  secondaryButtonText?: string;
+  secondaryButtonUrl?: string;
+}
+
+const {
+  title = "Siap Wujudkan Souvenir Acara Kantor yang Berkesan?",
+  description = "Konsultasikan konsep merchandise, estimasi bujet, dan jadwal acara Anda bersama tim ahli seminarkit. Dapatkan penawaran harga terbaik dan sampel digital.",
+  primaryButtonText = "Pesan via WhatsApp",
+  primaryButtonUrl = "https://wa.me/6282232730246?text=Halo%20seminarkit,%20saya%20ingin%20konsultasi%20paket%20seminar%20kit%20dan%20souvenir%20kantor",
+  secondaryButtonText = "Kirim Pesan",
+  secondaryButtonUrl = "/kontak"
+} = Astro.props;
+---
+
+<section class="cta-banner">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-12 col-lg-8">
+        <h2 class="text-white mb-2" style="font-size: 2.25rem;">
+          {title}
+        </h2>
+        <p class="text-white-50 prose-text mb-0" style="font-size: 1.0625rem;">
+          {description}
+        </p>
+      </div>
+
+      <div class="col-12 col-lg-4 d-flex flex-column flex-sm-row flex-lg-column gap-3 justify-content-lg-end">
+        <a
+          href={primaryButtonUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-sk-secondary text-center"
+        >
+          {primaryButtonText}
+        </a>
+        <a
+          href={secondaryButtonUrl}
+          class="btn-sk-outline-light text-center"
+        >
+          {secondaryButtonText}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

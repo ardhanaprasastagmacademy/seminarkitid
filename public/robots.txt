@@ -1,0 +1,10 @@
+# robots.txt untuk seminarkit (Souvenir Kantor)
+# Sesuai SEO-STRATEGY.md Bagian 8.2 & PRD.md
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/admin/
+
+Sitemap: https://seminarkit.id/sitemap.xml

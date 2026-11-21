@@ -1,0 +1,236 @@
+/* Bootstrap Overrides & Utilities */
+
+.container {
+  max-width: var(--container);
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media (min-width: 992px) {
+  .container {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+.section-py {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-6);
+}
+
+@media (min-width: 992px) {
+  .section-py {
+    padding-top: var(--space-7);
+    padding-bottom: var(--space-7);
+  }
+}
+
+.bg-paper {
+  background-color: var(--paper);
+}
+
+.bg-khaki-tint {
+  background-color: var(--khaki-tint);
+}
+
+.bg-slate {
+  background-color: var(--slate);
+  color: var(--white);
+}
+
+.bg-slate-deep {
+  background-color: var(--slate-deep);
+  color: var(--white);
+}
+
+.text-khaki {
+  color: var(--khaki) !important;
+}
+
+.text-khaki-deep {
+  color: var(--khaki-deep) !important;
+}
+
+.text-slate-soft {
+  color: var(--slate-soft) !important;
+}
+
+.border-line {
+  border: 1px solid var(--line) !important;
+}
+
+.border-line-top {
+  border-top: 1px solid var(--line);
+}
+
+.border-line-bottom {
+  border-bottom: 1px solid var(--line);
+}
+
+/* Accordion FAQ: Tanpa Chevron, Memakai Plus/Minus CSS */
+.accordion {
+  --bs-accordion-bg: transparent;
+  --bs-accordion-border-width: 0;
+  --bs-accordion-border-radius: 0;
+  --bs-accordion-inner-border-radius: 0;
+}
+
+.accordion-item {
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0 !important;
+}
+
+.accordion-item:first-of-type {
+  border-top: 1px solid var(--line);
+}
+
+.accordion-header {
+  margin: 0;
+}
+
+.accordion-button {
+  position: relative;
+  padding: 1.5rem 3rem 1.5rem 0;
+  background: transparent !important;
+  color: var(--slate-deep);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: none !important;
+  transition: color var(--t-fast) var(--ease);
+}
+
+.accordion-button::after {
+  display: none !important;
+  content: none !important;
+}
+
+.accordion-button:not(.collapsed) {
+  color: var(--khaki-deep);
+}
+
+.accordion-button .sk-plus {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+}
+
+.accordion-button .sk-plus::before,
+.accordion-button .sk-plus::after {
+  content: "";
+  position: absolute;
+  background-color: var(--slate-deep);
+}
+
+.accordion-button .sk-plus::before {
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: 2px;
+}
+
+.accordion-button .sk-plus::after {
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  width: 2px;
+  transition: transform var(--t-base) var(--ease);
+}
+
+.accordion-button:not(.collapsed) .sk-plus::after {
+  transform: scaleY(0);
+}
+
+.accordion-body {
+  padding: 0 0 1.5rem 0;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--slate-deep);
+  max-width: 65ch;
+}
+
+/* Offcanvas Sidebar Mobile Menu */
+.offcanvas-sk {
+  background-color: var(--slate) !important;
+  color: var(--white) !important;
+  width: 300px !important;
+  border-left: 1px solid var(--slate-soft) !important;
+}
+
+.offcanvas-sk .btn-close-sk {
+  background: none;
+  border: none;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.offcanvas-sk .btn-close-sk:hover {
+  color: var(--khaki);
+}
+
+/* Form Controls */
+.form-label-sk {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate-deep);
+  margin-bottom: 0.5rem;
+}
+
+.form-control-sk {
+  display: block;
+  width: 100%;
+  height: 52px;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  color: var(--slate-deep);
+  background-color: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+
+textarea.form-control-sk {
+  height: auto;
+  min-height: 120px;
+}
+
+.form-control-sk:focus {
+  outline: none;
+  border-color: var(--slate);
+  box-shadow: 0 0 0 3px rgba(189, 183, 107, 0.35);
+}
+
+.form-control-sk.is-invalid {
+  border-color: #8C2F2F;
+}
+
+.form-error-msg {
+  font-size: 0.8125rem;
+  color: #8C2F2F;
+  margin-top: 0.35rem;
+}
+
+.alert-sk-success {
+  background-color: var(--khaki-tint);
+  border-left: 3px solid var(--khaki-deep);
+  padding: 1.25rem 1.5rem;
+  color: var(--slate-deep);
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}

@@ -1,0 +1,93 @@
+---
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../../styles/main.css';
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Masuk Admin | seminarkit</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="bg-slate d-flex align-items-center justify-content-center" style="min-height: 100vh; padding: 20px;">
+    <div class="login-card">
+      <div class="text-center mb-4">
+        <span class="brand-logo d-inline-block text-dark" style="font-size: 2.25rem;">seminarkit</span>
+        <span class="eyebrow d-block mt-1">Panel Administrasi</span>
+      </div>
+
+      <div id="loginAlert" class="mb-3 p-3 border-line d-none" style="background-color: #FDF2F2; border-color: #8C2F2F; color: #8C2F2F; font-size: 0.875rem;">
+      </div>
+
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="adminEmail" class="form-label-sk">Alamat Email</label>
+          <input
+            type="email"
+            id="adminEmail"
+            class="form-control-sk"
+            placeholder="admin@seminarkit.id"
+            required
+            value="admin@seminarkit.id"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="adminPassword" class="form-label-sk">Kata Sandi</label>
+          <input
+            type="password"
+            id="adminPassword"
+            class="form-control-sk"
+            placeholder="••••••••"
+            required
+            value="adminseminarkit2026"
+          />
+        </div>
+
+        <button type="submit" class="btn-sk w-100 text-center py-3" id="btnLoginSubmit">
+          Masuk ke Panel
+        </button>
+      </form>
+
+      <div class="mt-4 pt-3 border-line-top text-center text-small text-slate-soft">
+        <a href="/" class="link-sk">Kembali ke Website Utama</a>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById('loginForm');
+      const alertBox = document.getElementById('loginAlert');
+      const submitBtn = document.getElementById('btnLoginSubmit');
+
+      // Auto redirect jika sudah login
+      if (localStorage.getItem('seminarkit_admin_token')) {
+        window.location.href = '/admin';
+      }
+
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = (document.getElementById('adminEmail') as HTMLInputElement).value;
+        const password = (document.getElementById('adminPassword') as HTMLInputElement).value;
+
+        if (submitBtn) submitBtn.textContent = 'Memverifikasi...';
+
+        // Verifikasi kredensial admin
+        setTimeout(() => {
+          if (email && password) {
+            localStorage.setItem('seminarkit_admin_token', 'admin_logged_in_' + Date.now());
+            window.location.href = '/admin';
+          } else {
+            if (alertBox) {
+              alertBox.textContent = 'Email atau kata sandi tidak sesuai.';
+              alertBox.classList.remove('d-none');
+            }
+            if (submitBtn) submitBtn.textContent = 'Masuk ke Panel';
+          }
+        }, 400);
+      });
+    </script>
+  </body>
+</html>

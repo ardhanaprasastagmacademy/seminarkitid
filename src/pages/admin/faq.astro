@@ -1,0 +1,208 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getFaqs } from '../../lib/db.js';
+
+const faqs = await getFaqs({ activeOnly: false });
+---
+
+<AdminLayout title="Kelola Tanya Jawab (FAQ)" activeNav="faq">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h4 mb-1">Daftar Pertanyaan & Jawaban (FAQ)</h2>
+      <span class="text-small text-slate-soft">Informasi tanya jawab yang tampil di beranda dan menghasilkan skema FAQPage SEO.</span>
+    </div>
+    <button
+      type="button"
+      class="btn-sk"
+      id="btnOpenAddFaq"
+    >
+      Tambah Pertanyaan Baru
+    </button>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-responsive">
+      <table class="table-sk">
+        <thead>
+          <tr>
+            <th style="width: 35%;">Pertanyaan</th>
+            <th style="width: 40%;">Jawaban Ringkas</th>
+            <th style="width: 10%;">Status</th>
+            <th style="width: 15%;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {faqs.map((f) => (
+            <tr>
+              <td class="fw-bold">{f.question}</td>
+              <td>
+                <div class="text-small text-slate-soft prose-text text-truncate" style="max-width: 360px;">
+                  {f.answer}
+                </div>
+              </td>
+              <td>
+                <span class={`badge-status ${f.is_active ? 'active' : ''}`}>
+                  {f.is_active ? 'Aktif' : 'Nonaktif'}
+                </span>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn-action btn-action-edit btn-edit-faq"
+                  data-faq={JSON.stringify(f)}
+                >
+                  Ubah
+                </button>
+                <button
+                  type="button"
+                  class="btn-action btn-action-delete btn-delete-faq"
+                  data-id={f.id}
+                >
+                  Hapus
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Form FAQ -->
+  <div class="modal fade" id="modalFaqForm" tabindex="-1" aria-labelledby="modalFaqLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-line" style="border-radius: var(--radius);">
+        <div class="modal-header bg-slate text-white">
+          <h3 class="modal-title h5" id="modalFaqLabel">Formulir FAQ</h3>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <form id="faqForm">
+          <div class="modal-body p-4">
+            <input type="hidden" id="faqId" />
+            <div class="mb-3">
+              <label for="faqQuestion" class="form-label-sk">Pertanyaan *</label>
+              <input type="text" id="faqQuestion" class="form-control-sk" required placeholder="Contoh: Berapa minimal order seminar kit?" />
+            </div>
+            <div class="mb-3">
+              <label for="faqAnswer" class="form-label-sk">Jawaban Tuntas (AEO Optimized) *</label>
+              <textarea id="faqAnswer" class="form-control-sk" rows="4" required placeholder="Tuliskan jawaban yang lugas, padat, dan informatif..."></textarea>
+            </div>
+            <div class="row g-3">
+              <div class="col-6">
+                <label for="faqActive" class="form-label-sk">Status Tampil</label>
+                <select id="faqActive" class="form-control-sk">
+                  <option value="true">Aktif (Tampil Publik)</option>
+                  <option value="false">Nonaktif</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="faqOrder" class="form-label-sk">Urutan Tampil</label>
+                <input type="number" id="faqOrder" class="form-control-sk" value="1" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer p-3 bg-khaki-tint border-line-top">
+            <button type="button" class="btn-sk-outline" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn-sk" id="btnSaveFaq">Simpan FAQ</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('faqForm') as HTMLFormElement;
+      const btnAdd = document.getElementById('btnOpenAddFaq');
+      const faqId = document.getElementById('faqId') as HTMLInputElement;
+      const faqQuestion = document.getElementById('faqQuestion') as HTMLInputElement;
+      const faqAnswer = document.getElementById('faqAnswer') as HTMLTextAreaElement;
+      const faqActive = document.getElementById('faqActive') as HTMLSelectElement;
+      const faqOrder = document.getElementById('faqOrder') as HTMLInputElement;
+      const btnSave = document.getElementById('btnSaveFaq') as HTMLButtonElement;
+
+      btnAdd?.addEventListener('click', () => {
+        form?.reset();
+        faqId.value = '';
+        (document.getElementById('modalFaqLabel') as HTMLElement).textContent = 'Tambah Pertanyaan Baru';
+        // @ts-ignore
+        window.skOpenModal('modalFaqForm');
+      });
+
+      document.querySelectorAll('.btn-edit-faq').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const f = JSON.parse(btn.getAttribute('data-faq') || '{}');
+          faqId.value = f.id || '';
+          faqQuestion.value = f.question || '';
+          faqAnswer.value = f.answer || '';
+          faqActive.value = String(Boolean(f.is_active));
+          faqOrder.value = String(f.sort_order || 1);
+
+          (document.getElementById('modalFaqLabel') as HTMLElement).textContent = 'Ubah Pertanyaan FAQ';
+          // @ts-ignore
+          window.skOpenModal('modalFaqForm');
+        });
+      });
+
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        btnSave.disabled = true;
+        btnSave.textContent = 'Menyimpan...';
+
+        const payload = {
+          id: faqId.value || undefined,
+          question: faqQuestion.value,
+          answer: faqAnswer.value,
+          is_active: faqActive.value === 'true',
+          sort_order: Number(faqOrder.value || 1)
+        };
+
+        try {
+          const res = await fetch('/api/admin/faq', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await res.json();
+
+          if (result.success) {
+            // @ts-ignore
+            window.skCloseModal('modalFaqForm');
+            window.location.reload();
+          } else {
+            alert('Gagal menyimpan FAQ: ' + (result.error || 'Terjadi kesalahan'));
+            btnSave.disabled = false;
+            btnSave.textContent = 'Simpan FAQ';
+          }
+        } catch (err) {
+          alert('Terjadi kesalahan jaringan.');
+          btnSave.disabled = false;
+          btnSave.textContent = 'Simpan FAQ';
+        }
+      });
+
+      document.querySelectorAll('.btn-delete-faq').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-id');
+          if (confirm('Hapus pertanyaan ini dari daftar FAQ?')) {
+            try {
+              const res = await fetch('/api/admin/faq', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+              });
+              const result = await res.json();
+              if (result.success) {
+                window.location.reload();
+              } else {
+                alert('Gagal menghapus FAQ.');
+              }
+            } catch (err) {
+              alert('Terjadi kesalahan jaringan.');
+            }
+          }
+        });
+      });
+    });
+  </script>
+</AdminLayout>

@@ -1,0 +1,421 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getProducts } from '../../lib/db.js';
+
+const products = await getProducts({ activeOnly: false });
+---
+
+<AdminLayout title="Kelola Produk & Paket Souvenir" activeNav="produk">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h4 mb-1">Daftar Produk Souvenir</h2>
+      <span class="text-small text-slate-soft">Kelola katalog souvenir kantor, harga, dan ketersediaan publik.</span>
+    </div>
+    <button
+      type="button"
+      class="btn-sk"
+      id="btnOpenAddProduct"
+    >
+      Tambah Produk Baru
+    </button>
+  </div>
+
+  <div class="admin-card">
+    <div class="table-responsive">
+      <table class="table-sk">
+        <thead>
+          <tr>
+            <th style="width: 10%;">Foto</th>
+            <th style="width: 25%;">Nama Produk & Slug</th>
+            <th style="width: 15%;">Harga</th>
+            <th style="width: 15%;">Unggulan</th>
+            <th style="width: 15%;">Status</th>
+            <th style="width: 20%;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="productTableBody">
+          {products.map((p) => (
+            <tr id={`row-prod-${p.id}`}>
+              <td>
+                <img
+                  src={p.main_image}
+                  alt={p.name}
+                  style="width: 48px; height: 60px; object-fit: cover;"
+                  class="border-line"
+                />
+              </td>
+              <td>
+                <div class="fw-bold">{p.name}</div>
+                <div class="text-small text-slate-soft">/{p.slug}</div>
+              </td>
+              <td class="fw-bold">
+                Rp {Number(p.price).toLocaleString('id-ID')}
+              </td>
+              <td>
+                {p.is_featured ? (
+                  <span class="badge-status active">Unggulan</span>
+                ) : (
+                  <span class="text-small text-slate-soft">Biasa</span>
+                )}
+              </td>
+              <td>
+                <span class={`badge-status ${p.is_active ? 'active' : ''}`}>
+                  {p.is_active ? 'Aktif' : 'Nonaktif'}
+                </span>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn-action btn-action-edit btn-edit-prod"
+                  data-product={JSON.stringify(p)}
+                >
+                  Ubah
+                </button>
+                <button
+                  type="button"
+                  class="btn-action btn-action-delete btn-delete-prod"
+                  data-id={p.id}
+                  data-name={p.name}
+                >
+                  Hapus
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Tambah / Ubah Produk Sesuai DESIGN.md -->
+  <div class="modal fade" id="modalProductForm" tabindex="-1" aria-labelledby="modalProductLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-line" style="border-radius: var(--radius);">
+        <div class="modal-header bg-slate text-white">
+          <h3 class="modal-title h5" id="modalProductLabel">Formulir Produk</h3>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <form id="productForm">
+          <div class="modal-body p-4">
+            <input type="hidden" id="prodId" name="id" />
+
+            <div class="row g-3">
+              <div class="col-12 col-md-8">
+                <label for="prodName" class="form-label-sk">Nama Produk *</label>
+                <input type="text" id="prodName" name="name" class="form-control-sk" required placeholder="Contoh: Tumbler Stainless Custom Logo" />
+              </div>
+              <div class="col-12 col-md-4">
+                <label for="prodPrice" class="form-label-sk">Harga Satuan (Rupiah) *</label>
+                <input type="number" id="prodPrice" name="price" class="form-control-sk" required placeholder="48000" />
+              </div>
+              <div class="col-12">
+                <label for="prodSlug" class="form-label-sk">Slug URL (Otomatis dibuat dari nama) *</label>
+                <input type="text" id="prodSlug" name="slug" class="form-control-sk" required placeholder="tumbler-stainless-custom-logo" />
+              </div>
+
+              <!-- Area Unggah Foto Utama Menggunakan File Picker Sesuai Permintaan -->
+              <div class="col-12">
+                <label class="form-label-sk">Foto Utama Produk *</label>
+                <!-- Input hidden yang menyimpan URL foto akhir -->
+                <input type="hidden" id="prodImage" name="main_image" required />
+
+                <!-- Input file sebenarnya (tersembunyi) -->
+                <input type="file" id="prodFileInput" accept="image/jpeg,image/png,image/webp" style="display: none;" />
+
+                <div class="upload-dropzone" id="dropzoneMainPhoto">
+                  <div id="dropzoneEmptyState">
+                    <p class="fw-bold mb-1">Klik untuk memilih foto dari perangkat Anda</p>
+                    <span class="text-small text-slate-soft d-block">Mendukung format JPG, PNG, WebP (Maksimal 2 MB)</span>
+                    <button type="button" class="btn-sk mt-3" style="padding: 0.5rem 1.25rem; font-size: 0.75rem;" id="btnBrowseFile">
+                      Pilih Berkas Foto
+                    </button>
+                  </div>
+
+                  <!-- State Pratinjau Foto yang Dipilih -->
+                  <div id="dropzonePreviewState" class="d-none align-items-center justify-content-between p-2">
+                    <div class="d-flex align-items-center gap-3">
+                      <img
+                        id="prodPreviewImg"
+                        src=""
+                        alt="Pratinjau"
+                        style="width: 64px; height: 80px; object-fit: cover;"
+                        class="border-line"
+                      />
+                      <div class="text-start">
+                        <div class="fw-bold text-small" id="prodFileName">foto-produk.webp</div>
+                        <div class="text-small text-khaki-deep" id="prodUploadStatus">Foto tersimpan</div>
+                      </div>
+                    </div>
+                    <button type="button" class="btn-sk-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;" id="btnChangePhoto">
+                      Ganti Foto
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label for="prodShortDesc" class="form-label-sk">Deskripsi Singkat (Tampil pada Card) *</label>
+                <input type="text" id="prodShortDesc" name="short_description" class="form-control-sk" required placeholder="Ringkasan 1-2 kalimat untuk card katalog..." />
+              </div>
+              <div class="col-12">
+                <label for="prodDesc" class="form-label-sk">Deskripsi Lengkap (Halaman Detail) *</label>
+                <textarea id="prodDesc" name="description" class="form-control-sk" rows="3" required placeholder="Penjelasan lengkap mengenai material, kelebihan, dan kegunaan souvenir..."></textarea>
+              </div>
+              <div class="col-6">
+                <label for="prodFeatured" class="form-label-sk d-block">Tampil di Beranda (Unggulan)</label>
+                <select id="prodFeatured" name="is_featured" class="form-control-sk">
+                  <option value="true">Ya (Tandai Unggulan)</option>
+                  <option value="false">Tidak</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="prodActive" class="form-label-sk d-block">Status Ketersediaan</label>
+                <select id="prodActive" name="is_active" class="form-control-sk">
+                  <option value="true">Aktif (Tampil Publik)</option>
+                  <option value="false">Nonaktif (Sembunyikan)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer p-3 bg-khaki-tint border-line-top">
+            <button type="button" class="btn-sk-outline" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn-sk" id="btnSaveProd">Simpan Produk</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const productForm = document.getElementById('productForm') as HTMLFormElement;
+      const btnAdd = document.getElementById('btnOpenAddProduct');
+      const prodId = document.getElementById('prodId') as HTMLInputElement;
+      const prodName = document.getElementById('prodName') as HTMLInputElement;
+      const prodPrice = document.getElementById('prodPrice') as HTMLInputElement;
+      const prodSlug = document.getElementById('prodSlug') as HTMLInputElement;
+      const prodImage = document.getElementById('prodImage') as HTMLInputElement;
+      const prodShortDesc = document.getElementById('prodShortDesc') as HTMLInputElement;
+      const prodDesc = document.getElementById('prodDesc') as HTMLTextAreaElement;
+      const prodFeatured = document.getElementById('prodFeatured') as HTMLSelectElement;
+      const prodActive = document.getElementById('prodActive') as HTMLSelectElement;
+      const btnSave = document.getElementById('btnSaveProd') as HTMLButtonElement;
+
+      // Elemen Upload Foto
+      const fileInput = document.getElementById('prodFileInput') as HTMLInputElement;
+      const btnBrowse = document.getElementById('btnBrowseFile');
+      const btnChange = document.getElementById('btnChangePhoto');
+      const dropzone = document.getElementById('dropzoneMainPhoto');
+      const emptyState = document.getElementById('dropzoneEmptyState');
+      const previewState = document.getElementById('dropzonePreviewState');
+      const previewImg = document.getElementById('prodPreviewImg') as HTMLImageElement;
+      const fileNameDisplay = document.getElementById('prodFileName');
+      const uploadStatus = document.getElementById('prodUploadStatus');
+
+      function showPhotoPreview(url: string, name: string = 'Foto terpilih') {
+        if (url) {
+          prodImage.value = url;
+          previewImg.src = url;
+          if (fileNameDisplay) fileNameDisplay.textContent = name;
+          if (uploadStatus) {
+            uploadStatus.textContent = 'Foto siap disimpan';
+            uploadStatus.className = 'text-small text-khaki-deep';
+          }
+          emptyState?.classList.add('d-none');
+          previewState?.classList.remove('d-none');
+          previewState?.classList.add('d-flex');
+        } else {
+          prodImage.value = '';
+          previewImg.src = '';
+          emptyState?.classList.remove('d-none');
+          previewState?.classList.add('d-none');
+          previewState?.classList.remove('d-flex');
+        }
+      }
+
+      // Handler Membuka File Picker
+      btnBrowse?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput?.click();
+      });
+
+      btnChange?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput?.click();
+      });
+
+      dropzone?.addEventListener('click', () => {
+        if (!prodImage.value) {
+          fileInput?.click();
+        }
+      });
+
+      // Proses Unggah Berkas ke API Storage
+      fileInput?.addEventListener('change', async () => {
+        if (!fileInput.files || fileInput.files.length === 0) return;
+        const file = fileInput.files[0];
+
+        // Validasi Ukuran (Maks 2 MB)
+        if (file.size > 2 * 1024 * 1024) {
+          alert('Ukuran file melebihi batas maksimal 2 MB.');
+          fileInput.value = '';
+          return;
+        }
+
+        // Tampilkan Pratinjau Sementara
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          showPhotoPreview(e.target?.result as string, file.name);
+          if (uploadStatus) {
+            uploadStatus.textContent = 'Mengunggah ke penyimpanan...';
+            uploadStatus.className = 'text-small text-slate-soft';
+          }
+        };
+        reader.readAsDataURL(file);
+
+        // Upload ke Server API
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const res = await fetch('/api/admin/upload', {
+            method: 'POST',
+            body: formData
+          });
+          const result = await res.json();
+
+          if (result.success && result.url) {
+            prodImage.value = result.url;
+            previewImg.src = result.url;
+            if (uploadStatus) {
+              uploadStatus.textContent = 'Foto berhasil diunggah';
+              uploadStatus.className = 'text-small text-khaki-deep';
+            }
+          } else {
+            alert('Gagal mengunggah foto: ' + (result.error || 'Terjadi kesalahan'));
+            showPhotoPreview('');
+          }
+        } catch (err) {
+          alert('Terjadi kendala jaringan saat mengunggah foto.');
+          showPhotoPreview('');
+        }
+      });
+
+      // Auto-generate slug dari nama
+      prodName?.addEventListener('input', () => {
+        if (!prodId.value) {
+          prodSlug.value = prodName.value
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        }
+      });
+
+      // Buka Modal Tambah Produk Baru
+      btnAdd?.addEventListener('click', () => {
+        productForm.reset();
+        prodId.value = '';
+        showPhotoPreview('');
+        (document.getElementById('modalProductLabel') as HTMLElement).textContent = 'Tambah Produk Baru';
+        // @ts-ignore
+        window.skOpenModal('modalProductForm');
+      });
+
+      // Buka Modal Ubah Produk
+      document.querySelectorAll('.btn-edit-prod').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const data = JSON.parse(btn.getAttribute('data-product') || '{}');
+          prodId.value = data.id || '';
+          prodName.value = data.name || '';
+          prodPrice.value = data.price || 0;
+          prodSlug.value = data.slug || '';
+          prodShortDesc.value = data.short_description || '';
+          prodDesc.value = data.description || '';
+          prodFeatured.value = String(Boolean(data.is_featured));
+          prodActive.value = String(Boolean(data.is_active));
+
+          showPhotoPreview(data.main_image || '', 'Foto Terpasang');
+
+          (document.getElementById('modalProductLabel') as HTMLElement).textContent = 'Ubah Produk: ' + data.name;
+          // @ts-ignore
+          window.skOpenModal('modalProductForm');
+        });
+      });
+
+      // Simpan Produk (Submit Form)
+      productForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!prodImage.value) {
+          alert('Harap pilih foto produk terlebih dahulu.');
+          return;
+        }
+
+        btnSave.disabled = true;
+        btnSave.textContent = 'Menyimpan...';
+
+        const payload = {
+          id: prodId.value || undefined,
+          name: prodName.value,
+          price: Number(prodPrice.value),
+          slug: prodSlug.value,
+          main_image: prodImage.value,
+          short_description: prodShortDesc.value,
+          description: prodDesc.value,
+          is_featured: prodFeatured.value === 'true',
+          is_active: prodActive.value === 'true',
+          sort_order: 1
+        };
+
+        try {
+          const res = await fetch('/api/admin/product', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await res.json();
+
+          if (result.success) {
+            // @ts-ignore
+            window.skCloseModal('modalProductForm');
+            window.location.reload();
+          } else {
+            alert('Gagal menyimpan produk: ' + (result.error || 'Terjadi kesalahan'));
+            btnSave.disabled = false;
+            btnSave.textContent = 'Simpan Produk';
+          }
+        } catch (err) {
+          alert('Terjadi kesalahan jaringan.');
+          btnSave.disabled = false;
+          btnSave.textContent = 'Simpan Produk';
+        }
+      });
+
+      // Hapus Produk
+      document.querySelectorAll('.btn-delete-prod').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-id');
+          const name = btn.getAttribute('data-name');
+          if (confirm(`Apakah Anda yakin ingin menghapus produk "${name}"?`)) {
+            try {
+              const res = await fetch('/api/admin/product', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+              });
+              const result = await res.json();
+              if (result.success) {
+                window.location.reload();
+              } else {
+                alert('Gagal menghapus produk: ' + (result.error || 'Terjadi kesalahan'));
+              }
+            } catch (err) {
+              alert('Terjadi kesalahan jaringan.');
+            }
+          }
+        });
+      });
+    });
+  </script>
+</AdminLayout>
